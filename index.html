@@ -2,10 +2,20 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Game Time</title>
+  <title>Jeepney Jump</title>
+  <link href="./assets/style.scss" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Waiting+for+the+Sunrise" rel="stylesheet">
 </head>
 <body>
-
+  <h1 class="logo">Jeepney Jump</h1>
+  <div class='score'>
+    <h2>Your High Score: </h2>
+    <h2 id='high-score'>0</h2>
+  </div>
+  <canvas id="game"
+    class="game-canvas"
+    width="640px"
+    height="480px"></canvas>
   <script src="main.bundle.js"></script>
 </body>
 </html>
