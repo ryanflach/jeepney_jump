@@ -1,0 +1,35 @@
+body {
+  background-attachment: fixed;
+  background-image: url('bg.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.game-canvas {
+  background-color: RGBA(233, 229, 219, .9);
+  border: 2px solid;
+  margin: auto;
+  display: block;
+}
+
+.logo {
+  color: #E9E5DB;
+  text-align: center;
+  font-family: 'Waiting for the Sunrise', cursive;
+  font-weight: bold;
+  font-size: 5em;
+  margin: -10px;
+}
+
+.score {
+  color: #E9E5DB;
+  text-align: center;
+  font-family: 'Waiting for the Sunrise', cursive;
+  font-size: 2em;
+}
+
+h2 {
+  display: inline-block;
+  margin-top: -10px;
+}
