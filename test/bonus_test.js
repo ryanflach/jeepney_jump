@@ -4,13 +4,14 @@ const Bonus = require('../lib/bonus')
 
 describe('Bonus', function(){
   context('with given attributes', function(){
-    var bonus = new Bonus('bonus.png', 50, 300, 150, 250);
+    var bonus = new Bonus({source: 'bonus.png', x: 50, y: 300, width: 150, height: 250});
     it('should be instantiated', function(){
       assert.instanceOf(bonus, Bonus);
     });
 
     it('should have an img', function(){
-      assert.equal(bonus.img, 'bonus.png');
+      assert.instanceOf(bonus.img, Image);
+      assert.equal(bonus.img.src, 'bonus.png');
     });
 
     it('should have an x coordinate', function(){
