@@ -4,7 +4,7 @@ const Building = require('../lib/building')
 
 describe('Building', function(){
   context('with given attributes', function(){
-    var building = new Building('building.png', 50, 300, 50, 300, 150, 250);
+    var building = new Building('building.png', 50, 300, 150, 250);
     it('should be instantiated', function(){
       assert.instanceOf(building, Building);
     });

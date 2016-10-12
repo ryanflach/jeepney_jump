@@ -4,7 +4,7 @@ const Obstacle = require('../lib/obstacle')
 
 describe('Obstacle', function(){
   context('with given attributes', function(){
-    var obstacle = new Obstacle('obstacle.png', 50, 300, 50, 300, 150, 250);
+    var obstacle = new Obstacle('obstacle.png', 50, 300, 150, 250);
     it('should be instantiated', function(){
       assert.instanceOf(obstacle, Obstacle);
     });

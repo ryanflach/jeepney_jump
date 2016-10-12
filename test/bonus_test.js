@@ -4,7 +4,7 @@ const Bonus = require('../lib/bonus')
 
 describe('Bonus', function(){
   context('with given attributes', function(){
-    var bonus = new Bonus('bonus.png', 50, 300, 50, 300, 150, 250);
+    var bonus = new Bonus('bonus.png', 50, 300, 150, 250);
     it('should be instantiated', function(){
       assert.instanceOf(bonus, Bonus);
     });
