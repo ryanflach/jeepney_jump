@@ -21,14 +21,6 @@ describe('Bonus', function(){
       assert.equal(bonus.y, 300);
     });
 
-    it('should have an sx coordinate', function(){
-      assert.equal(bonus.sx, 50);
-    });
-
-    it('should have an sy coordinate', function(){
-      assert.equal(bonus.sy, 300);
-    });
-
     it('should have a width', function(){
       assert.equal(bonus.width, 150);
     });

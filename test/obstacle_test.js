@@ -21,14 +21,6 @@ describe('Obstacle', function(){
       assert.equal(obstacle.y, 300);
     });
 
-    it('should have an sx coordinate', function(){
-      assert.equal(obstacle.sx, 50);
-    });
-
-    it('should have an sy coordinate', function(){
-      assert.equal(obstacle.sy, 300);
-    });
-
     it('should have a width', function(){
       assert.equal(obstacle.width, 150);
     });

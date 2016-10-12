@@ -21,14 +21,6 @@ describe('Building', function(){
       assert.equal(building.y, 300);
     });
 
-    it('should have an sx coordinate', function(){
-      assert.equal(building.sx, 50);
-    });
-
-    it('should have an sy coordinate', function(){
-      assert.equal(building.sy, 300);
-    });
-
     it('should have a width', function(){
       assert.equal(building.width, 150);
     });
