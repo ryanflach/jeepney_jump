@@ -1,9 +1,12 @@
 const chai = require('chai');
 const assert = chai.assert;
 const Jeepney = require('../lib/jeepney')
+const stub = require('./support/stub');
 
 describe('Jeepney', function(){
-  var jeepney = new Jeepney;
+  var image = stub();
+  var jeepney = new Jeepney(image);
+  
   context('with default attributes', function(){
     it('should be instantiated', function(){
       assert.instanceOf(jeepney, Jeepney);
@@ -28,6 +31,10 @@ describe('Jeepney', function(){
     it('should have a starting health of 5', function(){
       assert.equal(jeepney.health, 5);
     });
+
+    it('should have an image', function(){
+      assert.equal('/assets/images/jeepney.png', jeepney.img.src);
+    })
   });
 
   context('loseHealth', function(){
