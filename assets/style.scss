@@ -32,25 +32,33 @@ body {
 h2 {
   display: inline-block;
   margin-top: -10px;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+.button {
+  font-size: 40px;
+  display: block;
+  width: 250px;
+  margin: 0 auto;
+  height: 50px;
+  line-height: 50px;
+  border: 2px solid #F8C102;
+  color: #E9E5DB;
+  font-weight: bold;
+  background-color: #F8C102;
+  background-image: -webkit-linear-gradient(bottom, #FF9635 0%, #F8C102 100%);
+  background-image:         linear-gradient(to bottom, #FF9635 0%, #F8C102 100%);
+  border-radius: 5px;
+  margin-bottom: 30px;
+  margin-top: 25px;
 }
 
-.button {
-  display: block;
-  width: 150px;
-  margin: 0 auto;
-  height: 30px;
-  line-height: 30px;
-  border: 1px solid #AA2666;
-  color: white;
-  font-weight: bold;
-  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
-  background-color: #FB1886;
-  background-image: -webkit-linear-gradient(bottom, #FB1886 0%, #B30D5D 100%);
-  background-image:         linear-gradient(to bottom, #FB1886 0%, #B30D5D 100%);
-  border-radius: 5px;
+a {
+  text-decoration: none;
 }
+
 .button:hover {
-  background-color: #B30D5D;
-  background-image: -webkit-linear-gradient(bottom, #B30D5D 0%, #FB1886 100%);
-  background-image:         linear-gradient(to bottom, #B30D5D 0%, #FB1886 100%);
+  background-color: #F8C102;
+  background-image: -webkit-linear-gradient(bottom, #F8C102 0%, #FF9635 100%);
+  background-image:         linear-gradient(to bottom, #F8C102 0%, #FF9635 100%);
 }
