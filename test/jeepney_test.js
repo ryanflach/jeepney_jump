@@ -1,12 +1,10 @@
 const chai = require('chai');
 const assert = chai.assert;
-const Jeepney = require('../lib/jeepney')
-const stub = require('./support/stub');
+const Jeepney = require('../lib/jeepney');
 
 describe('Jeepney', function(){
-  var image = stub();
-  var jeepney = new Jeepney(image);
-  
+  var jeepney = new Jeepney();
+
   context('with default attributes', function(){
     it('should be instantiated', function(){
       assert.instanceOf(jeepney, Jeepney);
@@ -17,7 +15,7 @@ describe('Jeepney', function(){
     });
 
     it('should have an y coordinate', function(){
-      assert.equal(jeepney.y, 300);
+      assert.equal(jeepney.y, 250);
     });
 
     it('should have a width', function(){
@@ -33,8 +31,28 @@ describe('Jeepney', function(){
     });
 
     it('should have an image', function(){
-      assert.equal('/assets/images/jeepney.png', jeepney.img.src);
-    })
+      assert.instanceOf(jeepney.img, Image);
+    });
+
+    it('should have an image source', function(){
+      assert.equal('http://localhost:8080/assets/images/jeepney.png', jeepney.img.src);
+    });
+
+    it('should have a jumping status', function(){
+      assert.equal(jeepney.jumping, false);
+    });
+
+    it('should have a gravity', function(){
+      assert.equal(jeepney.gravity, 0.4);
+    });
+
+    it('should have a y velocity', function(){
+      assert.equal(jeepney.yVelocity, 0);
+    });
+
+    it('should have a speed', function(){
+      assert.equal(jeepney.speed, 5);
+    });
   });
 
   context('loseHealth', function(){
@@ -45,8 +63,31 @@ describe('Jeepney', function(){
   });
 
   context('movement', function(){
-    it('has a jump function', function(){
-      assert.isFunction(jeepney.jump);
+    it('can jump!', function(){
+      jeepney.jump();
+      assert.equal(jeepney.jumping, true);
+      assert.equal(jeepney.yVelocity, -jeepney.speed * 2);
+    });
+
+    it('does not jump if currently jumping', function(){
+      var currentYVelocity = jeepney.yVelocity;
+
+      assert.equal(jeepney.jumping, true);
+
+      jeepney.jump();
+
+      assert.equal(jeepney.jumping, true);
+      assert.equal(jeepney.yVelocity, currentYVelocity);
+    });
+  });
+
+  context('page rendering', function(){
+    it('has a draw function', function(){
+      assert.isFunction(jeepney.draw);
+    });
+
+    it('has an update function', function(){
+      assert.isFunction(jeepney.update);
     });
   });
 });
