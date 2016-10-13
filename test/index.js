@@ -1,4 +1,6 @@
-require('./jeepney_test')
-require('./building_test')
-require('./obstacle_test')
-require('./bonus_test')
+require('./background_test');
+require('./background_object_test');
+require('./bonus_test');
+require('./game_test');
+require('./jeepney_test');
+require('./obstacle_test');
