@@ -3,9 +3,9 @@ const assert = chai.assert;
 const Jeepney = require('../lib/jeepney');
 
 describe('Jeepney', function(){
-  var jeepney = new Jeepney();
-
   context('with default attributes', function(){
+    var jeepney = new Jeepney();
+
     it('should be instantiated', function(){
       assert.instanceOf(jeepney, Jeepney);
     });
@@ -14,7 +14,7 @@ describe('Jeepney', function(){
       assert.equal(jeepney.x, 50);
     });
 
-    it('should have an y coordinate', function(){
+    it('should have a y coordinate', function(){
       assert.equal(jeepney.y, 250);
     });
 
@@ -42,8 +42,8 @@ describe('Jeepney', function(){
       assert.equal(jeepney.jumping, false);
     });
 
-    it('should have a gravity', function(){
-      assert.equal(jeepney.gravity, 0.4);
+    it('should have a gravity attribute', function(){
+      assert.equal(jeepney.gravity, 0.38);
     });
 
     it('should have a y velocity', function(){
@@ -56,6 +56,8 @@ describe('Jeepney', function(){
   });
 
   context('loseHealth', function(){
+    var jeepney = new Jeepney();
+
     it('should be able to lose health', function(){
       jeepney.loseHealth();
       assert.equal(jeepney.health, 4);
@@ -63,6 +65,8 @@ describe('Jeepney', function(){
   });
 
   context('movement', function(){
+    var jeepney = new Jeepney();
+
     it('can jump!', function(){
       jeepney.jump();
       assert.equal(jeepney.jumping, true);
@@ -82,12 +86,49 @@ describe('Jeepney', function(){
   });
 
   context('page rendering', function(){
+    var jeepney = new Jeepney();
+
     it('has a draw function', function(){
       assert.isFunction(jeepney.draw);
     });
 
-    it('has an update function', function(){
-      assert.isFunction(jeepney.update);
+    it('updates y if jumping', function(){
+      var oldY = jeepney.y;
+
+      jeepney.jump();
+      jeepney.update();
+
+      assert.equal(jeepney.y, oldY + -jeepney.speed * 2);
+    });
+
+    it('updates image source based on current health', function(){
+      var imagePrefix = 'http://localhost:8080/assets/images/';
+      jeepney.health = 4;
+      jeepney.updateDamageShown();
+
+      assert.equal(jeepney.img.src, imagePrefix + 'jeepney-damage1.png');
+
+      jeepney.health = 2;
+      jeepney.updateDamageShown();
+
+      assert.equal(jeepney.img.src, imagePrefix + 'jeepney-damage2.png');
+
+      jeepney.health = 1;
+      jeepney.updateDamageShown();
+
+      assert.equal(jeepney.img.src, imagePrefix + 'jeepney-damage3.png');
+    });
+  });
+
+  context('collision', function(){
+    var jeepney = new Jeepney();
+
+    it('detects collision', function(){
+      var collidingObstacle = { x: 203, y: 250, width: 100 };
+      var nonCollidingObstacle = { x: 400, y: 250, width: 100 };
+
+      assert.equal(jeepney.isColliding(collidingObstacle), true);
+      assert.equal(jeepney.isColliding(nonCollidingObstacle), false);
     });
   });
 });

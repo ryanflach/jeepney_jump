@@ -1,6 +1,7 @@
 const chai = require('chai');
 const assert = chai.assert;
 const Obstacle = require('../lib/obstacle');
+const Jeepney = require('../lib/jeepney');
 
 describe('Obstacle', function(){
   var obstacle = new Obstacle({ imgSrc: '/assets/images/obstacle.png', x: 50, y: 300, width: 150, height: 250, speed: 20 });
@@ -37,6 +38,18 @@ describe('Obstacle', function(){
     it('should have a speed', function(){
       assert.equal(obstacle.speed, 20);
     });
+
+    it('should not be collided with by default', function(){
+      assert.equal(obstacle.hitByJeepney, false);
+    });
+
+    it('should have a default y velocity of 0', function(){
+      assert.equal(obstacle.yVelocity, 0);
+    });
+
+    it('should have a default x velocity of 0', function(){
+      assert.equal(obstacle.xVelocity, 0);
+    });
   });
 
   context('page rendering', function(){
@@ -50,6 +63,45 @@ describe('Obstacle', function(){
       obstacle.update();
 
       assert.equal(obstacle.x, 30);
+    });
+
+    it('should update by velocity in place of speed if hit', function(){
+      obstacle.hitByJeepney = true;
+      obstacle.yVelocity = 5;
+      obstacle.xVelocity = 5;
+
+      assert.equal(obstacle.x, 30);
+
+      obstacle.update();
+
+      assert.equal(obstacle.x, 35);
+      assert.equal(obstacle.y, 305);
+    });
+  });
+
+  context('process collision', function(){
+    var jeepney = new Jeepney();
+    var newObstacle = new Obstacle({ imgSrc: '/assets/images/obstacle.png', x: 200, y: 300, width: 150, height: 250, speed: 20 });
+
+    it('updates x and y velocity in a head-on collision', function(){
+      newObstacle.processColission(jeepney);
+
+      assert.equal(newObstacle.hitByJeepney, true);
+      assert.equal(newObstacle.yVelocity, -2);
+      assert.equal(newObstacle.xVelocity, 12);
+    });
+
+    it('updates y velocity when landed on by jeepney', function(){
+      newObstacle.hitByJeepney = false;
+      newObstacle.yVelocity = 0;
+      newObstacle.xVelocity = 0;
+      newObstacle.x += 50;
+
+      newObstacle.processColission(jeepney);
+
+      assert.equal(newObstacle.hitByJeepney, true);
+      assert.equal(newObstacle.yVelocity, 12);
+      assert.equal(newObstacle.xVelocity, 0);
     });
   });
 });
