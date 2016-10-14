@@ -103,6 +103,7 @@ describe('Jeepney', function(){
 
     it('updates image source based on current health', function(){
       var imagePrefix = 'http://localhost:8080/assets/images/';
+
       jeepney.health = 4;
       jeepney.updateDamageShown();
 
@@ -129,6 +130,18 @@ describe('Jeepney', function(){
 
       assert.equal(jeepney.isColliding(collidingObstacle), true);
       assert.equal(jeepney.isColliding(nonCollidingObstacle), false);
+    });
+  });
+
+  context('is dead', function(){
+    var jeepney = new Jeepney();
+
+    it('can be dead', function(){
+      assert.equal(jeepney.isDead(), false);
+
+      jeepney.health = 0;
+
+      assert.equal(jeepney.isDead(), true);
     });
   });
 });

@@ -34,6 +34,10 @@ describe('Game', function(){
     it('should have a background', function(){
       assert.instanceOf(game.background, Background);
     });
+
+    it('should have a default playing status of true', function(){
+      assert.equal(game.playing, true);
+    });
   });
 
   context('page rendering', function(){
@@ -43,6 +47,34 @@ describe('Game', function(){
 
     it('should have an update function', function(){
       assert.isFunction(game.update);
+    });
+
+    it('should have a generate background objects function', function(){
+      assert.isFunction(game.generateBackgroundObjects);
+    });
+
+    it('should have a set background objects function', function(){
+      assert.isFunction(game.setBackgroundObjects);
+    });
+
+    it('should have a generate obstacles function', function(){
+      assert.isFunction(game.generateObstacles);
+    });
+
+    it('should have a set obstacles function', function(){
+      assert.isFunction(game.setObstacles);
+    });
+
+    it('should have a check jeepney health function', function(){
+      assert.isFunction(game.checkJeepneyHealth);
+    });
+
+    it('should have a reload start button function', function(){
+      assert.isFunction(game.reloadStartButton);
+    });
+    
+    it('should have an end game function', function(){
+      assert.isFunction(game.endGame);
     });
   });
 });
