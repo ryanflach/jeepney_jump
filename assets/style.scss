@@ -32,4 +32,33 @@ body {
 h2 {
   display: inline-block;
   margin-top: -10px;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+.button {
+  font-size: 35px;
+  display: block;
+  width: 250px;
+  margin: 0 auto;
+  height: 50px;
+  line-height: 50px;
+  border: 2px solid #F8C102;
+  color: #E9E5DB;
+  font-weight: bold;
+  background-color: #F8C102;
+  background-image: -webkit-linear-gradient(bottom, #FF9635 0%, #F8C102 100%);
+  background-image:         linear-gradient(to bottom, #FF9635 0%, #F8C102 100%);
+  border-radius: 5px;
+  margin-bottom: 30px;
+  margin-top: 25px;
+}
+
+a {
+  text-decoration: none;
+}
+
+.button:hover {
+  background-color: #F8C102;
+  background-image: -webkit-linear-gradient(bottom, #F8C102 0%, #FF9635 100%);
+  background-image:         linear-gradient(to bottom, #F8C102 0%, #FF9635 100%);
 }
