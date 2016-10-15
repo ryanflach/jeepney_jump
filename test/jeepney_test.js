@@ -53,6 +53,10 @@ describe('Jeepney', function(){
     it('should have a speed', function(){
       assert.equal(jeepney.speed, 5);
     });
+
+    it('should have a default score of 0', function(){
+      assert.equal(jeepney.score, 0);
+    });
   });
 
   context('loseHealth', function(){
@@ -90,6 +94,18 @@ describe('Jeepney', function(){
 
     it('has a draw function', function(){
       assert.isFunction(jeepney.draw);
+    });
+
+    it('updates score at each update', function(){
+      assert.equal(jeepney.score, 0);
+
+      jeepney.update();
+
+      assert.equal(jeepney.score, 1);
+
+      jeepney.update();
+
+      assert.equal(jeepney.score, 2);
     });
 
     it('updates y if jumping', function(){
@@ -136,7 +152,7 @@ describe('Jeepney', function(){
   context('is dead', function(){
     var jeepney = new Jeepney();
 
-    it('can be dead', function(){
+    it('should only be dead when health reaches 0', function(){
       assert.equal(jeepney.isDead(), false);
 
       jeepney.health = 0;

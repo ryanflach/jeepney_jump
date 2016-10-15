@@ -72,7 +72,15 @@ describe('Game', function(){
     it('should have a reload start button function', function(){
       assert.isFunction(game.reloadStartButton);
     });
-    
+
+    it('should have a draw score function', function(){
+      assert.isFunction(game.drawScore);
+    });
+
+    it('should have a draw health function', function(){
+      assert.isFunction(game.drawHealth);
+    });
+
     it('should have an end game function', function(){
       assert.isFunction(game.endGame);
     });
