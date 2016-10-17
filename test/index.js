@@ -4,3 +4,4 @@ require('./bonus_test');
 require('./game_test');
 require('./jeepney_test');
 require('./obstacle_test');
+require('./asset_manager_test');
