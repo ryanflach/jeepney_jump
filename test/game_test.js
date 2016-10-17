@@ -5,6 +5,9 @@ const canvas = document.getElementById('game');
 const canvasContext = canvas.getContext('2d');
 const Jeepney = require('../lib/jeepney');
 const Background = require('../lib/background');
+const AssetManager = require('../lib/asset_manager');
+const Obstacle = require('../lib/obstacle');
+const BackgroundObject = require('../lib/background_object');
 
 describe('Game', function(){
   var game = new Game(canvas, canvasContext);
@@ -21,6 +24,11 @@ describe('Game', function(){
 
     it('should have an array of background objects', function(){
       assert.instanceOf(game.backgroundObjects, Array);
+      assert.instanceOf(game.backgroundObjects[0], BackgroundObject);
+    });
+
+    it('should have an instance of an Asset Manager', function(){
+      assert.instanceOf(game.assets, AssetManager);
     });
 
     it('should have a jeepney', function(){
@@ -29,10 +37,16 @@ describe('Game', function(){
 
     it('should have an array of obstacles', function(){
       assert.instanceOf(game.obstacles, Array);
+      assert.instanceOf(game.obstacles[0], Obstacle);
     });
 
     it('should have a background', function(){
       assert.instanceOf(game.background, Background);
+    });
+
+    it('should have clouds', function(){
+      assert.instanceOf(game.clouds, Array);
+      assert.instanceOf(game.clouds[0], Background);
     });
 
     it('should have a default playing status of true', function(){
@@ -47,6 +61,14 @@ describe('Game', function(){
 
     it('should have an update function', function(){
       assert.isFunction(game.update);
+    });
+
+    it('should have a generate clouds function', function(){
+      assert.isFunction(game.generateClouds);
+    });
+
+    it('should have a set clouds function', function(){
+      assert.isFunction(game.setClouds);
     });
 
     it('should have a generate background objects function', function(){

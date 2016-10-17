@@ -33,11 +33,25 @@ describe('Background', function(){
     it('should have a height', function(){
       assert.equal(background.height, 500);
     });
+
+    it('should have a default speed of 0', function(){
+      assert.equal(background.speed, 0);
+    });
   });
 
   context('page rendering', function(){
     it('has a draw function', function(){
       assert.isFunction(background.draw);
+    });
+
+    it('has an update function that updates x', function(){
+      assert.isFunction(background.update);
+
+      background.speed = 1;
+
+      background.update();
+
+      assert.equal(background.x, -1);
     });
   });
 });
