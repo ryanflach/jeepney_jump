@@ -4,7 +4,7 @@ const Obstacle = require('../lib/obstacle');
 const Jeepney = require('../lib/jeepney');
 
 describe('Obstacle', function(){
-  var obstacle = new Obstacle({ imgSrc: '/assets/images/obstacle.png', x: 50, y: 300, width: 150, height: 250, speed: 20 });
+  var obstacle = new Obstacle({ imgSrc: '/assets/images/obstacle.png', x: 50, y: 300, width: 150, height: 250, speed: 20, name: 'Robert Paulson' });
 
   context('with given attributes', function(){
     it('should be instantiated', function(){
@@ -49,6 +49,10 @@ describe('Obstacle', function(){
 
     it('should have a default x velocity of 0', function(){
       assert.equal(obstacle.xVelocity, 0);
+    });
+
+    it('should have a name', function(){
+      assert.equal(obstacle.name, 'Robert Paulson');
     });
   });
 

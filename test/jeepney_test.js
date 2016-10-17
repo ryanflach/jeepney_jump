@@ -15,7 +15,7 @@ describe('Jeepney', function(){
     });
 
     it('should have a y coordinate', function(){
-      assert.equal(jeepney.y, 250);
+      assert.equal(jeepney.y, 210.5);
     });
 
     it('should have a width', function(){
@@ -23,7 +23,7 @@ describe('Jeepney', function(){
     });
 
     it('should have a height', function(){
-      assert.equal(jeepney.height, 82.5);
+      assert.equal(jeepney.height, 122);
     });
 
     it('should have a starting health of 5', function(){
@@ -35,7 +35,7 @@ describe('Jeepney', function(){
     });
 
     it('should have an image source', function(){
-      assert.equal('http://localhost:8080/assets/images/jeepney.png', jeepney.img.src);
+      assert.equal('http://localhost:8080/assets/images/jeepney/jeepney_no_damage.png', jeepney.img.src);
     });
 
     it('should have a jumping status', function(){
@@ -118,22 +118,22 @@ describe('Jeepney', function(){
     });
 
     it('updates image source based on current health', function(){
-      var imagePrefix = 'http://localhost:8080/assets/images/';
+      var imagePrefix = 'http://localhost:8080/assets/images/jeepney/';
 
       jeepney.health = 4;
       jeepney.updateDamageShown();
 
-      assert.equal(jeepney.img.src, imagePrefix + 'jeepney-damage1.png');
+      assert.equal(jeepney.img.src, imagePrefix + 'jeepney_damage_1.png');
 
       jeepney.health = 2;
       jeepney.updateDamageShown();
 
-      assert.equal(jeepney.img.src, imagePrefix + 'jeepney-damage2.png');
+      assert.equal(jeepney.img.src, imagePrefix + 'jeepney_damage_2.png');
 
       jeepney.health = 1;
       jeepney.updateDamageShown();
 
-      assert.equal(jeepney.img.src, imagePrefix + 'jeepney-damage3.png');
+      assert.equal(jeepney.img.src, imagePrefix + 'jeepney_full_damage.png');
     });
   });
 

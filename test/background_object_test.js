@@ -3,7 +3,7 @@ const assert = chai.assert;
 const BackgroundObject = require('../lib/background_object');
 
 describe('BackgroundObject', function(){
-  var backgroundObject = new BackgroundObject({imgSrc: '/assets/images/backgroundObject.png', x: 50, y: 300, width: 150, height: 250});
+  var backgroundObject = new BackgroundObject({ imgSrc: '/assets/images/backgroundObject.png', x: 50, y: 300, width: 150, height: 250, name: 'Robert Paulson' });
 
   context('with given attributes', function(){
     it('should be instantiated', function(){
@@ -36,6 +36,10 @@ describe('BackgroundObject', function(){
 
     it('should have a speed', function(){
       assert.equal(backgroundObject.speed, 5);
+    });
+
+    it('should have a name', function(){
+      assert.equal(backgroundObject.name, 'Robert Paulson');
     });
   });
 
