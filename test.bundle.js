@@ -72,13 +72,17 @@
 	    x: canvas.width,
 	    y: canvas.height
 	  };
-	  this.assets = new Assets({ x: this.size.x, y: this.size.y });
-	  this.backgroundObjects = [this.assets.randomBackgroundObject()];
+	  this.assets = new Assets({
+	    x: this.size.x,
+	    y: this.size.y
+	  });
+	  this.backgroundObjects = [this.assets.randomBackgroundObject(null, this.difficulty)];
 	  this.jeepney = this.assets.jeepney();
-	  this.obstacles = [this.assets.randomObstacle()];
+	  this.obstacles = [this.assets.randomObstacle(this.difficulty)];
 	  this.background = this.assets.background('ground');
 	  this.clouds = [this.assets.background('cloud')];
 	  this.playing = true;
+	  this.difficulty = 0.001;
 
 	  var gameAnimation = function () {
 	    if (this.playing) {
@@ -96,6 +100,7 @@
 	Game.prototype.update = function () {
 	  var jeepney = this.jeepney;
 
+	  this.difficulty += 0.001;
 	  this.generateBackgroundObjects();
 	  this.generateObstacles();
 	  this.generateClouds();
@@ -120,13 +125,13 @@
 	};
 
 	Game.prototype.generateBackgroundObjects = function () {
-	  var firstbackgroundObject = this.backgroundObjects[0];
-	  var lastbackgroundObject = this.backgroundObjects[this.backgroundObjects.length - 1];
+	  var firstBackgroundObject = this.backgroundObjects[0];
+	  var lastBackgroundObject = this.backgroundObjects[this.backgroundObjects.length - 1];
 
-	  if (firstbackgroundObject.x < 0 - firstbackgroundObject.width) {
+	  if (firstBackgroundObject.x < 0 - firstBackgroundObject.width) {
 	    this.backgroundObjects.shift();
-	  } else if (lastbackgroundObject.x + lastbackgroundObject.width < this.size.x - Math.random() * 50 - 10) {
-	    this.backgroundObjects.push(this.assets.randomBackgroundObject(lastbackgroundObject));
+	  } else if (lastBackgroundObject.x + lastBackgroundObject.width < this.size.x - Math.random() * 50 - 10) {
+	    this.backgroundObjects.push(this.assets.randomBackgroundObject(lastBackgroundObject, this.difficulty));
 	  }
 	};
 
@@ -136,22 +141,22 @@
 	  var minDistanceBetweenObstacles = this.size.x - Math.random() * 5000 - this.jeepney.width * 2;
 
 	  if (!firstObstacle || lastObstacle.x + lastObstacle.width < minDistanceBetweenObstacles) {
-	    this.obstacles.push(this.assets.randomObstacle());
+	    this.obstacles.push(this.assets.randomObstacle(this.difficulty));
 	  } else if (firstObstacle.x + firstObstacle.width < 0 || firstObstacle.x > this.size.x || firstObstacle.y > this.size.y) {
 	    this.obstacles.shift();
 	  }
 	};
 
 	Game.prototype.setBackgroundObjects = function () {
-	  this.backgroundObjects.forEach(function (backgroundObject) {
-	    backgroundObject.update();
-	  });
+	  for (let i = 0; i < this.backgroundObjects.length; i++) {
+	    this.backgroundObjects[i].update();
+	  }
 	};
 
 	Game.prototype.setClouds = function () {
-	  this.clouds.forEach(function (cloud) {
-	    cloud.update();
-	  });
+	  for (var i = 0; i < this.clouds.length; i++) {
+	    this.clouds[i].update();
+	  }
 	};
 
 	Game.prototype.setObstacles = function (jeepney) {
@@ -162,17 +167,17 @@
 	    return obstacle.hitByJeepney;
 	  });
 
-	  validObstacles.forEach(function (obstacle) {
-	    if (jeepney.isColliding(obstacle)) {
+	  for (let i = 0; i < validObstacles.length; i++) {
+	    if (jeepney.isColliding(validObstacles[i])) {
 	      jeepney.loseHealth();
-	      obstacle.processColission(jeepney);
+	      validObstacles[i].processColission(jeepney);
 	    }
-	    obstacle.update();
-	  });
+	    validObstacles[i].update();
+	  }
 
-	  hitObstacles.forEach(function (obstacle) {
-	    obstacle.update();
-	  });
+	  for (let i = 0; i < hitObstacles.length; i++) {
+	    hitObstacles[i].update();
+	  }
 	};
 
 	Game.prototype.checkJeepneyHealth = function () {
@@ -201,19 +206,19 @@
 	  context.fillRect(0, 300, this.size.x, 65);
 	  this.background.draw(context);
 
-	  this.clouds.forEach(function (cloud) {
-	    cloud.draw(context);
-	  });
+	  for (let i = 0; i < this.clouds.length; i++) {
+	    this.clouds[i].draw(context);
+	  }
 
-	  this.backgroundObjects.forEach(function (backgroundObject) {
-	    backgroundObject.draw(context);
-	  });
+	  for (let i = 0; i < this.backgroundObjects.length; i++) {
+	    this.backgroundObjects[i].draw(context);
+	  }
 
 	  this.jeepney.draw(context);
 
-	  this.obstacles.forEach(function (obstacle) {
-	    obstacle.draw(context);
-	  });
+	  for (let i = 0; i < this.obstacles.length; i++) {
+	    this.obstacles[i].draw(context);
+	  }
 
 	  this.drawScore(context);
 	  this.drawHealth(context);
@@ -226,9 +231,9 @@
 	};
 
 	Game.prototype.drawHealth = function (context) {
-	  let x = 825;
-	  for (let i = 0; i < this.jeepney.health; i++) {
-	    let img = new Image();
+	  var x = 825;
+	  for (var i = 0; i < this.jeepney.health; i++) {
+	    var img = new Image();
 	    img.src = 'assets/images/heart.png';
 	    context.drawImage(img, x, 25, 30, 30);
 	    x -= 45;
@@ -10513,14 +10518,15 @@
 	};
 
 	// Background Objects
-	AssetManager.prototype.backgroundObject = function (item) {
+	AssetManager.prototype.backgroundObject = function (item, difficulty) {
 	  const palmTreeSpecs = {
 	    x: this.maximumX,
 	    y: 167,
 	    width: 53.75,
 	    height: 135,
 	    imgSrc: 'assets/images/background_objects/palm_tree.png',
-	    name: 'palmTree'
+	    name: 'palmTree',
+	    speed: 5 + difficulty
 	  };
 
 	  const bankSpecs = {
@@ -10529,7 +10535,8 @@
 	    width: 103.5,
 	    height: 160.5,
 	    imgSrc: 'assets/images/background_objects/bank.png',
-	    name: 'bank'
+	    name: 'bank',
+	    speed: 5 + difficulty
 	  };
 
 	  const churchSpecs = {
@@ -10538,7 +10545,8 @@
 	    width: 63,
 	    height: 183,
 	    imgSrc: 'assets/images/background_objects/church.png',
-	    name: 'church'
+	    name: 'church',
+	    speed: 5 + difficulty
 	  };
 
 	  const greenBuildingSpecs = {
@@ -10547,7 +10555,8 @@
 	    width: 84,
 	    height: 171,
 	    imgSrc: 'assets/images/background_objects/green_building.png',
-	    name: 'greenBuilding'
+	    name: 'greenBuilding',
+	    speed: 5 + difficulty
 	  };
 
 	  const hospitalSpecs = {
@@ -10556,7 +10565,8 @@
 	    width: 88.5,
 	    height: 159,
 	    imgSrc: 'assets/images/background_objects/hospital.png',
-	    name: 'hospital'
+	    name: 'hospital',
+	    speed: 5 + difficulty
 	  };
 
 	  const mallSpecs = {
@@ -10565,7 +10575,8 @@
 	    width: 232.5,
 	    height: 169.5,
 	    imgSrc: 'assets/images/background_objects/mall.png',
-	    name: 'mall'
+	    name: 'mall',
+	    speed: 5 + difficulty
 	  };
 
 	  const pinkBuildingSpecs = {
@@ -10574,7 +10585,8 @@
 	    width: 132,
 	    height: 123,
 	    imgSrc: 'assets/images/background_objects/pink_building.png',
-	    name: 'pinkBuilding'
+	    name: 'pinkBuilding',
+	    speed: 5 + difficulty
 	  };
 
 	  const videokeBarSpecs = {
@@ -10583,7 +10595,8 @@
 	    width: 84.5,
 	    height: 153.5,
 	    imgSrc: 'assets/images/background_objects/videoke_bar.png',
-	    name: 'videokeBar'
+	    name: 'videokeBar',
+	    speed: 5 + difficulty
 	  };
 
 	  const backgroundObjectSpecs = {
@@ -10600,28 +10613,28 @@
 	  return new BackgroundObject(backgroundObjectSpecs[item]);
 	};
 
-	AssetManager.prototype.randomBackgroundObject = function (previousItem) {
+	AssetManager.prototype.randomBackgroundObject = function (previousItem, difficulty) {
 	  const rand = Math.floor(Math.random() * this.allBackgroundObjects.length);
 	  const itemName = this.allBackgroundObjects[rand];
 	  const repeatItem = previousItem && itemName === previousItem.name;
 
 	  if (repeatItem) {
-	    return this.randomBackgroundObject.call(this, previousItem);
+	    return this.randomBackgroundObject.call(this, previousItem, difficulty);
 	  }
 
-	  return this.backgroundObject(itemName);
+	  return this.backgroundObject(itemName, difficulty);
 	};
 
 	// Bonus Objects
 
 	// Obstacles
-	AssetManager.prototype.obstacle = function (obstacleName) {
+	AssetManager.prototype.obstacle = function (obstacleName, difficulty) {
 	  const motorcycleSpecs = {
 	    x: this.maximumX,
 	    y: 270,
 	    width: 97.25,
 	    height: 64.25,
-	    speed: 6,
+	    speed: 5.5 + difficulty,
 	    imgSrc: 'assets/images/obstacles/motorcycle.png',
 	    name: 'motorcycle'
 	  };
@@ -10631,7 +10644,7 @@
 	    y: 283.85,
 	    width: 90.6,
 	    height: 50.4,
-	    speed: 7,
+	    speed: 6 + difficulty,
 	    imgSrc: 'assets/images/obstacles/street_dog.png',
 	    name: 'streetDog'
 	  };
@@ -10644,11 +10657,11 @@
 	  return new Obstacle(obstacleSpecs[obstacleName]);
 	};
 
-	AssetManager.prototype.randomObstacle = function () {
+	AssetManager.prototype.randomObstacle = function (difficulty) {
 	  const rand = Math.floor(Math.random() * this.allObstacles.length);
 	  const itemName = this.allObstacles[rand];
 
-	  return this.obstacle(itemName);
+	  return this.obstacle(itemName, difficulty);
 	};
 
 	// Jeepney
@@ -10743,12 +10756,17 @@
 	};
 
 	Jeepney.prototype.updateDamageShown = function () {
-	  if (this.health < 2) {
-	    this.img.src = 'assets/images/jeepney/jeepney_full_damage.png';
-	  } else if (this.health < 3) {
-	    this.img.src = 'assets/images/jeepney/jeepney_damage_2.png';
-	  } else if (this.health < 5) {
-	    this.img.src = 'assets/images/jeepney/jeepney_damage_1.png';
+	  switch (this.health) {
+	    case 1:
+	      this.img.src = 'assets/images/jeepney/jeepney_full_damage.png';
+	      break;
+	    case 2:
+	      this.img.src = 'assets/images/jeepney/jeepney_damage_2.png';
+	      break;
+	    case 3:
+	    case 4:
+	    case 5:
+	      this.img.src = 'assets/images/jeepney/jeepney_damage_1.png';
 	  }
 	};
 
@@ -10857,8 +10875,8 @@
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
-		module.hot.accept("!!/Users/Ryan/turing/4module/projects/game_time/jeepney_jump/node_modules/mocha-loader/node_modules/css-loader/index.js!/Users/Ryan/turing/4module/projects/game_time/jeepney_jump/node_modules/mocha/mocha.css", function() {
-			var newContent = require("!!/Users/Ryan/turing/4module/projects/game_time/jeepney_jump/node_modules/mocha-loader/node_modules/css-loader/index.js!/Users/Ryan/turing/4module/projects/game_time/jeepney_jump/node_modules/mocha/mocha.css");
+		module.hot.accept("!!/Users/nateallen/Turing/4module/projects/jeepney_jump/node_modules/mocha-loader/node_modules/css-loader/index.js!/Users/nateallen/Turing/4module/projects/jeepney_jump/node_modules/mocha/mocha.css", function() {
+			var newContent = require("!!/Users/nateallen/Turing/4module/projects/jeepney_jump/node_modules/mocha-loader/node_modules/css-loader/index.js!/Users/nateallen/Turing/4module/projects/jeepney_jump/node_modules/mocha/mocha.css");
 			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 			update(newContent);
 		});
@@ -19702,6 +19720,10 @@
 
 	    it('should have a default playing status of true', function () {
 	      assert.equal(game.playing, true);
+	    });
+
+	    it('should have a difficulty of at least 0.001', function () {
+	      assert.isAtLeast(game.difficulty, 0.001);
 	    });
 	  });
 
