@@ -2,7 +2,7 @@
 
 **Play the game [here](https://ryanflach.github.com/jeepney_jump).**
 
-Jeepney Jump is a Filipino-themed endless obstacle game built in JavaScript, utilizing [Webpack](https://github.com/webpack/webpack).
+Jeepney Jump is a Filipino-themed 2D endless obstacle game. Single-page, client-side web application built in JavaScript, utilizing [Webpack](https://github.com/webpack/webpack).
 
 As the player, you control a jeepney, an iconic form of public transit in the Philippines.
 

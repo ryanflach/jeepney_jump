@@ -52,6 +52,10 @@ describe('Game', function(){
     it('should have a default playing status of false', function(){
       assert.equal(game.playing, false);
     });
+
+    it('should have a difficulty of at least 0.001', function(){
+      assert.isAtLeast(game.difficulty, 0.001);
+    });
   });
 
   context('page rendering', function(){
