@@ -49,8 +49,8 @@ describe('Game', function(){
       assert.instanceOf(game.clouds[0], Background);
     });
 
-    it('should have a default playing status of true', function(){
-      assert.equal(game.playing, true);
+    it('should have a default playing status of false', function(){
+      assert.equal(game.playing, false);
     });
   });
 
@@ -89,10 +89,6 @@ describe('Game', function(){
 
     it('should have a check jeepney health function', function(){
       assert.isFunction(game.checkJeepneyHealth);
-    });
-
-    it('should have a reload start button function', function(){
-      assert.isFunction(game.reloadStartButton);
     });
 
     it('should have a draw score function', function(){
