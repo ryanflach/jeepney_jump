@@ -48,10 +48,9 @@
 	const $ = __webpack_require__(2);
 	const canvas = document.getElementById('game');
 	const gameContext = canvas.getContext('2d');
-	const startButton = $('.button,play');
 
 	$(document).ready(function () {
-	  gameFlow();
+	  startGame();
 	  displayHighScore();
 	});
 
@@ -61,21 +60,15 @@
 	  }
 	};
 
-	var gameFlow = function () {
-	  if (startButton.is(":visible")) {
-	    startButton.on('click', function () {
-	      startGame();
-	      startButton.hide();
-	    });
-	  } else {
-	    gameFlow();
-	  }
-	};
-
 	function startGame() {
 	  var game = new Game(canvas, gameContext);
+
 	  document.addEventListener('keydown', function (e) {
-	    if (e.keyCode === 32) {
+	    if (!game.playing && e.keyCode === 32) {
+	      game = new Game(canvas, gameContext);
+	      game.playing = true;
+	      game.startUp();
+	    } else if (game.playing && e.keyCode === 32) {
 	      game.jeepney.jump();
 	    }
 	  });
@@ -86,7 +79,6 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	const $ = __webpack_require__(2);
-	const startButton = $('.button,play');
 	const Assets = __webpack_require__(3);
 
 	var Game = function (canvas, context) {
@@ -100,7 +92,8 @@
 	  this.obstacles = [this.assets.randomObstacle()];
 	  this.background = this.assets.background('ground');
 	  this.clouds = [this.assets.background('cloud')];
-	  this.playing = true;
+	  this.playing = false;
+	  this.gameOver = false;
 
 	  var gameAnimation = function () {
 	    if (this.playing) {
@@ -108,11 +101,16 @@
 	      this.draw(context);
 	      requestAnimationFrame(gameAnimation);
 	    } else {
+	      requestAnimationFrame(gameAnimation);
 	      this.endGame(context);
 	    }
 	  }.bind(this);
 
 	  gameAnimation();
+	};
+
+	Game.prototype.startUp = function () {
+	  this.playing = true;
 	};
 
 	Game.prototype.update = function () {
@@ -199,18 +197,16 @@
 
 	Game.prototype.checkJeepneyHealth = function () {
 	  if (this.jeepney.isDead()) {
+	    localStorage.lastScore = this.jeepney.score;
+	    this.gameOver = true;
 	    this.playing = false;
 	  }
 	};
 
-	Game.prototype.reloadStartButton = function () {
-	  startButton.show();
-	};
-
 	Game.prototype.endGame = function (context) {
+	  this.playing = false;
 	  context.clearRect(0, 0, this.size.x, this.size.y);
-	  this.drawScore(context);
-	  this.reloadStartButton();
+	  this.drawStart(context);
 	  if (!localStorage.highScore || this.jeepney.score > localStorage.highScore) {
 	    localStorage.highScore = this.jeepney.score;
 	    $('#high-score').text(this.jeepney.score);
@@ -247,16 +243,34 @@
 	  context.fillText("Score: " + this.jeepney.score, 50, 48);
 	};
 
+	Game.prototype.drawLastScore = function (context) {
+	  context.font = '50px VT323';
+	  context.fillStyle = 'black';
+	  context.fillText("Last Score: " + localStorage.lastScore, this.size.x / 2 - 150, 75);
+	  let img = new Image();
+	  img.src = 'assets/images/restart.png';
+	  context.drawImage(img, 1, 1, 898, 398);
+	};
+
 	Game.prototype.drawHealth = function (context) {
-	  let x = 825;
-	  for (let i = 0; i < this.jeepney.health; i++) {
-	    let img = new Image();
+	  var x = 825;
+	  for (var i = 0; i < this.jeepney.health; i++) {
+	    var img = new Image();
 	    img.src = 'assets/images/heart.png';
 	    context.drawImage(img, x, 25, 30, 30);
 	    x -= 45;
 	  }
 	};
 
+	Game.prototype.drawStart = function (context) {
+	  if (this.gameOver) {
+	    this.drawLastScore(context);
+	  } else {
+	    let img = new Image();
+	    img.src = 'assets/images/start.png';
+	    context.drawImage(img, 1, 1, 898, 398);
+	  }
+	};
 	module.exports = Game;
 
 /***/ },
