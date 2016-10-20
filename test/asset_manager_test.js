@@ -5,6 +5,7 @@ const Background = require('../lib/background');
 const BackgroundObject = require('../lib/background_object');
 const Jeepney = require('../lib/jeepney');
 const Obstacle = require('../lib/obstacle');
+const Bonus = require('../lib/bonus');
 
 
 describe('Asset Manager', function(){
@@ -32,6 +33,11 @@ describe('Asset Manager', function(){
       assert.instanceOf(assets.allObstacles, Array);
       assert.equal(assets.allObstacles[0], 'motorcycle');
     });
+
+    it('should have an array of all possible bonus object names', function(){
+      assert.instanceOf(assets.allBonusObjects, Array);
+      assert.equal(assets.allBonusObjects[0], 'lumpia');
+    });
   });
 
   context('object creation', function(){
@@ -53,6 +59,14 @@ describe('Asset Manager', function(){
 
     it('can create a random obstacle', function(){
       assert.instanceOf(assets.randomObstacle(), Obstacle);
+    });
+
+    it('can create a bonus object', function(){
+      assert.instanceOf(assets.bonusObject('lumpia'), Bonus);
+    });
+
+    it('can create a random bonus object', function(){
+      assert.instanceOf(assets.randomBonusObject(), Bonus);
     });
 
     it('can create a jeepney', function(){

@@ -1,6 +1,7 @@
 const chai = require('chai');
 const assert = chai.assert;
 const Jeepney = require('../lib/jeepney');
+const AudioPlayer = require('../lib/audio_player');
 
 describe('Jeepney', function(){
   context('with default attributes', function(){
@@ -56,6 +57,14 @@ describe('Jeepney', function(){
 
     it('should have a default score of 0', function(){
       assert.equal(jeepney.score, 0);
+    });
+
+    it('should have drive audio', function(){
+      assert.instanceOf(jeepney.driveAudio, AudioPlayer);
+    });
+
+    it('should have jump audio', function(){
+      assert.instanceOf(jeepney.jumpAudio, AudioPlayer);
     });
   });
 

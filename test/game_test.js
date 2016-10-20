@@ -71,16 +71,16 @@ describe('Game', function(){
       assert.isFunction(game.generateClouds);
     });
 
-    it('should have a set clouds function', function(){
-      assert.isFunction(game.setClouds);
+    it('should have a set function', function(){
+      assert.isFunction(game.set);
     });
 
     it('should have a generate background objects function', function(){
       assert.isFunction(game.generateBackgroundObjects);
     });
 
-    it('should have a set background objects function', function(){
-      assert.isFunction(game.setBackgroundObjects);
+    it('should have a draw asset function', function(){
+      assert.isFunction(game.drawAsset);
     });
 
     it('should have a generate obstacles function', function(){

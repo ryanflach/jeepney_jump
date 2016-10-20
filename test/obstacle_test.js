@@ -2,9 +2,10 @@ const chai = require('chai');
 const assert = chai.assert;
 const Obstacle = require('../lib/obstacle');
 const Jeepney = require('../lib/jeepney');
+const AudioPlayer = require('../lib/audio_player');
 
 describe('Obstacle', function(){
-  var obstacle = new Obstacle({ imgSrc: '/assets/images/obstacle.png', x: 50, y: 300, width: 150, height: 250, speed: 20, name: 'Robert Paulson' });
+  var obstacle = new Obstacle({ imgSrc: '/assets/images/obstacle.png', x: 50, y: 300, width: 150, height: 250, speed: 20, name: 'Robert Paulson', audioSrc: 'assets/audio/motorcycle_hit.mp3' });
 
   context('with given attributes', function(){
     it('should be instantiated', function(){
@@ -53,6 +54,10 @@ describe('Obstacle', function(){
 
     it('should have a name', function(){
       assert.equal(obstacle.name, 'Robert Paulson');
+    });
+
+    it('should have an audio player', function(){
+      assert.instanceOf(obstacle.audio, AudioPlayer);
     });
   });
 
