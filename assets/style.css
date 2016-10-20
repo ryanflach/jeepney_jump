@@ -10,6 +10,7 @@ body {
   background-color: RGBA(233, 229, 219, .9);
   border: 2px solid;
   margin: auto;
+  margin-bottom: 75px;
   display: block;
 }
 
@@ -19,7 +20,7 @@ body {
   font-family: 'Waiting for the Sunrise', cursive;
   font-weight: bold;
   font-size: 5em;
-  margin: -10px;
+  margin: -10px 0px;
 }
 
 .score {
@@ -37,13 +38,10 @@ h2 {
 
 #github {
   height: 40px;
-  width: auto;
+  width: 40px;
 }
 
 .github {
   text-align: center;
-  bottom: 25px;
-  left: 0;
-  right: 0;
-  position: fixed;
+  display: block;
 }
