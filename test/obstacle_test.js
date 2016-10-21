@@ -89,7 +89,13 @@ describe('Obstacle', function(){
   });
 
   context('process collision', function(){
-    var jeepney = new Jeepney();
+    var jeepney = new Jeepney({
+      imgSrc: 'assets/images/jeepney/jeepney_no_damage.png',
+      x: 50,
+      y: 210.5,
+      width: 168,
+      height: 122
+    });
     var newObstacle = new Obstacle({ imgSrc: '/assets/images/obstacle.png', x: 200, y: 300, width: 150, height: 250, speed: 20 });
 
     it('updates x and y velocity in a head-on collision', function(){
