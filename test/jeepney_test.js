@@ -4,9 +4,15 @@ const Jeepney = require('../lib/jeepney');
 const AudioPlayer = require('../lib/audio_player');
 
 describe('Jeepney', function(){
-  context('with default attributes', function(){
-    var jeepney = new Jeepney();
+  const jeepney = new Jeepney({
+    imgSrc: 'assets/images/jeepney/jeepney_no_damage.png',
+    x: 50,
+    y: 210.5,
+    width: 168,
+    height: 122
+  });
 
+  context('with default attributes', function(){
     it('should be instantiated', function(){
       assert.instanceOf(jeepney, Jeepney);
     });
@@ -69,8 +75,6 @@ describe('Jeepney', function(){
   });
 
   context('loseHealth', function(){
-    var jeepney = new Jeepney();
-
     it('should be able to lose health', function(){
       jeepney.loseHealth();
       assert.equal(jeepney.health, 4);
@@ -78,45 +82,6 @@ describe('Jeepney', function(){
   });
 
   context('movement', function(){
-    var jeepney = new Jeepney();
-
-    it('can jump!', function(){
-      jeepney.jump();
-      assert.equal(jeepney.jumping, true);
-      assert.equal(jeepney.yVelocity, -jeepney.speed * 2);
-    });
-
-    it('does not jump if currently jumping', function(){
-      var currentYVelocity = jeepney.yVelocity;
-
-      assert.equal(jeepney.jumping, true);
-
-      jeepney.jump();
-
-      assert.equal(jeepney.jumping, true);
-      assert.equal(jeepney.yVelocity, currentYVelocity);
-    });
-  });
-
-  context('page rendering', function(){
-    var jeepney = new Jeepney();
-
-    it('has a draw function', function(){
-      assert.isFunction(jeepney.draw);
-    });
-
-    it('updates score at each update', function(){
-      assert.equal(jeepney.score, 0);
-
-      jeepney.update();
-
-      assert.equal(jeepney.score, 1);
-
-      jeepney.update();
-
-      assert.equal(jeepney.score, 2);
-    });
-
     it('updates y if jumping', function(){
       var oldY = jeepney.y;
 
@@ -124,6 +89,34 @@ describe('Jeepney', function(){
       jeepney.update();
 
       assert.equal(jeepney.y, oldY + -jeepney.speed * 2);
+    });
+
+    it('does not update Y velocity if currently jumping', function(){
+      var currentYVelocity = jeepney.yVelocity;
+
+      assert.equal(jeepney.jumping, true);
+
+      jeepney.jump();
+
+      assert.equal(jeepney.yVelocity, currentYVelocity);
+    });
+  });
+
+  context('page rendering', function(){
+    it('has a draw function', function(){
+      assert.isFunction(jeepney.draw);
+    });
+
+    it('updates score at each update', function(){
+      var currentScore = jeepney.score;
+
+      jeepney.update();
+
+      assert.equal(jeepney.score, currentScore + 1);
+
+      jeepney.update();
+
+      assert.equal(jeepney.score, currentScore + 2);
     });
 
     it('updates image source based on current health', function(){
@@ -147,8 +140,6 @@ describe('Jeepney', function(){
   });
 
   context('collision', function(){
-    var jeepney = new Jeepney();
-
     it('detects collision', function(){
       var collidingObstacle = { x: 203, y: 250, width: 100 };
       var nonCollidingObstacle = { x: 400, y: 250, width: 100 };
@@ -159,8 +150,6 @@ describe('Jeepney', function(){
   });
 
   context('is dead', function(){
-    var jeepney = new Jeepney();
-
     it('should only be dead when health reaches 0', function(){
       assert.equal(jeepney.isDead(), false);
 

@@ -49,26 +49,26 @@
 	const canvas = document.getElementById('game');
 	const gameContext = canvas.getContext('2d');
 
-	$(document).ready(function () {
+	$(document).ready(() => {
 	  startGame();
 	  displayHighScore();
 	});
 
-	var displayHighScore = function () {
+	const displayHighScore = () => {
 	  if (localStorage.highScore) {
 	    $('#high-score').html(localStorage.highScore);
 	  }
 	};
 
-	var startGame = function () {
-	  var game = new Game(canvas, gameContext);
+	const startGame = () => {
+	  let game = new Game(canvas, gameContext);
 
-	  $(document).on('keydown', function (e) {
-	    if (!game.playing && e.keyCode === 32) {
+	  $(document).on('keydown touchstart', e => {
+	    if (!game.playing && (e.keyCode === 32 || e.changedTouches)) {
 	      game = new Game(canvas, gameContext);
 	      game.playing = true;
 	      game.startUp();
-	    } else if (game.playing && e.keyCode === 32) {
+	    } else if (game.playing && (e.keyCode === 32 || e.changedTouches)) {
 	      game.jeepney.jump();
 	    }
 	  });
@@ -80,229 +80,228 @@
 
 	const $ = __webpack_require__(2);
 	const Assets = __webpack_require__(3);
-	const AudioPlayer = __webpack_require__(7);
+	const AudioPlayer = __webpack_require__(8);
 
-	var Game = function (canvas, context) {
-	  this.size = { x: canvas.width, y: canvas.height };
-	  this.assets = new Assets({ x: this.size.x, y: this.size.y });
-	  this.difficulty = 0.001;
-	  this.playing = false;
-	  this.gameOver = false;
-	  this.backgroundObjects = [this.assets.randomBackgroundObject(null, this.difficulty)];
-	  this.jeepney = this.assets.jeepney();
-	  this.obstacles = [this.assets.obstacle('streetDog', this.difficulty)];
-	  this.background = this.assets.background('ground');
-	  this.clouds = [this.assets.background('cloud')];
-	  this.bonuses = [];
-	  this.audio = new AudioPlayer({ source: 'assets/audio/lupang_hinirang.mp3', loops: true, volume: 0.3 });
+	class Game {
+	  constructor(canvas, context) {
+	    this.size = { x: canvas.width, y: canvas.height };
+	    this.assets = new Assets({ x: this.size.x, y: this.size.y });
+	    this.difficulty = 0.001;
+	    this.playing = false;
+	    this.gameOver = false;
+	    this.backgroundObjects = [this.assets.randomBackgroundObject(null, this.difficulty)];
+	    this.jeepney = this.assets.jeepney();
+	    this.obstacles = [this.assets.obstacle('streetDog', this.difficulty)];
+	    this.background = this.assets.background('ground');
+	    this.clouds = [this.assets.background('cloud')];
+	    this.bonuses = [];
+	    this.audio = new AudioPlayer({ source: 'assets/audio/lupang_hinirang.mp3', loops: true, volume: 0.3 });
+	    this.gameAnimation.call(this, context);
+	  }
 
-	  var gameAnimation = function () {
+	  gameAnimation(context) {
 	    if (this.playing) {
 	      this.update();
 	      this.draw(context);
-	      requestAnimationFrame(gameAnimation);
+	      requestAnimationFrame(this.gameAnimation.bind(this, context));
 	    } else {
-	      requestAnimationFrame(gameAnimation);
+	      requestAnimationFrame(this.gameAnimation.bind(this, context));
 	      this.endGame(context);
 	    }
-	  }.bind(this);
-
-	  gameAnimation();
-	};
-
-	Game.prototype.startUp = function () {
-	  this.playing = true;
-	  this.jeepney.driveAudio.play();
-	  this.audio.play();
-	  setInterval(this.generateBonusObjects.bind(this), 5000);
-	};
-
-	Game.prototype.update = function () {
-	  var jeepney = this.jeepney;
-	  this.difficulty += 0.001;
-	  this.generateBackgroundObjects();
-	  this.generateObstacles();
-	  this.generateClouds();
-	  this.set(this.backgroundObjects);
-	  this.set(this.clouds);
-	  this.setObstacles(jeepney);
-	  this.setBonusObjects();
-
-	  jeepney.update();
-
-	  this.checkJeepneyHealth();
-	};
-
-	Game.prototype.generateClouds = function () {
-	  var firstCloud = this.clouds[0];
-	  var lastCloud = this.clouds[this.clouds.length - 1];
-
-	  if (firstCloud.x < 0 - firstCloud.width) {
-	    this.clouds.shift();
-	  } else if (lastCloud.x + lastCloud.width < this.size.x - Math.random() * 5000 - 40) {
-	    this.clouds.push(this.assets.background('cloud'));
 	  }
-	};
 
-	Game.prototype.generateBackgroundObjects = function () {
-	  var firstBackgroundObject = this.backgroundObjects[0];
-	  var lastBackgroundObject = this.backgroundObjects[this.backgroundObjects.length - 1];
-
-	  if (firstBackgroundObject.x < 0 - firstBackgroundObject.width) {
-	    this.backgroundObjects.shift();
-	  } else if (lastBackgroundObject.x + lastBackgroundObject.width < this.size.x - Math.random() * 50 - 10) {
-	    this.backgroundObjects.push(this.assets.randomBackgroundObject(lastBackgroundObject, this.difficulty));
+	  startUp() {
+	    this.playing = true;
+	    this.jeepney.driveAudio.play();
+	    this.audio.play();
+	    setInterval(this.generateBonusObjects.bind(this), 5000);
 	  }
-	};
 
-	Game.prototype.generateBonusObjects = function () {
-	  var bonus = this.bonuses[0];
-	  var offScreen = bonus ? bonus.x + bonus.width < 0 || bonus.y + bonus.height < 0 : null;
-
-	  if (!bonus) {
-	    this.bonuses.push(this.assets.randomBonusObject(this.difficulty));
-	  } else if (offScreen) {
-	    this.bonuses.shift();
+	  update() {
+	    this.difficulty += 0.001;
+	    this.generateBackgroundObjects();
+	    this.generateObstacles();
+	    this.generateClouds();
+	    this.set(this.backgroundObjects);
+	    this.set(this.clouds);
+	    this.setObstacles(this.jeepney);
+	    this.setBonusObjects();
+	    this.jeepney.update();
+	    this.checkJeepneyHealth();
 	  }
-	};
 
-	Game.prototype.set = function (objects) {
-	  for (let i = 0; i < objects.length; i++) {
-	    objects[i].update();
-	  }
-	};
+	  generateClouds() {
+	    const firstCloud = this.clouds[0];
+	    const lastCloud = this.clouds[this.clouds.length - 1];
 
-	Game.prototype.setBonusObjects = function () {
-	  var validBonusObjects = this.bonuses.filter(function (bonusItem) {
-	    return !bonusItem.hitByJeepney;
-	  });
-
-	  var collectedBonuses = this.bonuses.filter(function (bonusItem) {
-	    return bonusItem.hitByJeepney;
-	  });
-
-	  for (let i = 0; i < validBonusObjects.length; i++) {
-	    if (this.jeepney.isColliding(validBonusObjects[i])) {
-	      validBonusObjects[i].processColission(this.jeepney);
-	      this.jeepney.collectBonus();
+	    if (firstCloud.x < 0 - firstCloud.width) {
+	      this.clouds.shift();
+	    } else if (lastCloud.x + lastCloud.width < this.size.x - Math.random() * 5000 - 40) {
+	      this.clouds.push(this.assets.background('cloud'));
 	    }
-	    validBonusObjects[i].update();
 	  }
 
-	  for (let i = 0; i < collectedBonuses.length; i++) {
-	    collectedBonuses[i].update();
-	  }
-	};
+	  generateBackgroundObjects() {
+	    const firstBackgroundObject = this.backgroundObjects[0];
+	    const lastBackgroundObject = this.backgroundObjects[this.backgroundObjects.length - 1];
 
-	Game.prototype.generateObstacles = function () {
-	  var firstObstacle = this.obstacles[0];
-	  var lastObstacle = this.obstacles[this.obstacles.length - 1];
-	  var minDistanceBetweenObstacles = this.size.x - Math.random() * 5000 - this.jeepney.width * 2;
-
-	  if (!firstObstacle || lastObstacle.x + lastObstacle.width < minDistanceBetweenObstacles) {
-	    var newObstacle = this.difficulty > 1 ? this.assets.randomObstacle(this.difficulty) : this.assets.obstacle('streetDog', this.difficulty);
-	    this.obstacles.push(newObstacle);
-	  } else if (firstObstacle.x + firstObstacle.width < 0 || firstObstacle.x > this.size.x || firstObstacle.y > this.size.y) {
-	    this.obstacles.shift();
-	  }
-	};
-
-	Game.prototype.setObstacles = function (jeepney) {
-	  var validObstacles = this.obstacles.filter(function (obstacle) {
-	    return !obstacle.hitByJeepney;
-	  });
-	  var hitObstacles = this.obstacles.filter(function (obstacle) {
-	    return obstacle.hitByJeepney;
-	  });
-
-	  for (let i = 0; i < validObstacles.length; i++) {
-	    if (jeepney.isColliding(validObstacles[i])) {
-	      jeepney.loseHealth();
-	      validObstacles[i].processColission(jeepney);
+	    if (firstBackgroundObject.x < 0 - firstBackgroundObject.width) {
+	      this.backgroundObjects.shift();
+	    } else if (lastBackgroundObject.x + lastBackgroundObject.width < this.size.x - Math.random() * 50 - 10) {
+	      this.backgroundObjects.push(this.assets.randomBackgroundObject(lastBackgroundObject, this.difficulty));
 	    }
-	    validObstacles[i].update();
 	  }
 
-	  for (let i = 0; i < hitObstacles.length; i++) {
-	    hitObstacles[i].update();
-	  }
-	};
+	  generateBonusObjects() {
+	    const bonus = this.bonuses[0];
+	    const offScreen = bonus ? bonus.x + bonus.width < 0 || bonus.y + bonus.height < 0 : null;
 
-	Game.prototype.checkJeepneyHealth = function () {
-	  if (this.jeepney.isDead()) {
-	    localStorage.lastScore = this.jeepney.score;
-	    this.gameOver = true;
+	    if (!bonus) {
+	      this.bonuses.push(this.assets.randomBonusObject(this.difficulty));
+	    } else if (offScreen) {
+	      this.bonuses.shift();
+	    }
+	  }
+
+	  set(objects) {
+	    for (let i = 0; i < objects.length; i++) {
+	      objects[i].update();
+	    }
+	  }
+
+	  setBonusObjects() {
+	    const validBonusObjects = this.bonuses.filter(function (bonusItem) {
+	      return !bonusItem.hitByJeepney;
+	    });
+
+	    const collectedBonuses = this.bonuses.filter(function (bonusItem) {
+	      return bonusItem.hitByJeepney;
+	    });
+
+	    for (let i = 0; i < validBonusObjects.length; i++) {
+	      if (this.jeepney.isColliding(validBonusObjects[i])) {
+	        validBonusObjects[i].processColission(this.jeepney);
+	        this.jeepney.collectBonus();
+	      }
+	      validBonusObjects[i].update();
+	    }
+
+	    for (let i = 0; i < collectedBonuses.length; i++) {
+	      collectedBonuses[i].update();
+	    }
+	  }
+
+	  generateObstacles() {
+	    const firstObstacle = this.obstacles[0];
+	    const lastObstacle = this.obstacles[this.obstacles.length - 1];
+	    const minDistanceBetweenObstacles = this.size.x - Math.random() * 5000 - this.jeepney.width * 2;
+
+	    if (!firstObstacle || lastObstacle.x + lastObstacle.width < minDistanceBetweenObstacles) {
+	      const newObstacle = this.difficulty > 1 ? this.assets.randomObstacle(this.difficulty) : this.assets.obstacle('streetDog', this.difficulty);
+	      this.obstacles.push(newObstacle);
+	    } else if (firstObstacle.x + firstObstacle.width < 0 || firstObstacle.x > this.size.x || firstObstacle.y > this.size.y) {
+	      this.obstacles.shift();
+	    }
+	  }
+
+	  setObstacles(jeepney) {
+	    const validObstacles = this.obstacles.filter(function (obstacle) {
+	      return !obstacle.hitByJeepney;
+	    });
+	    const hitObstacles = this.obstacles.filter(function (obstacle) {
+	      return obstacle.hitByJeepney;
+	    });
+
+	    for (let i = 0; i < validObstacles.length; i++) {
+	      if (jeepney.isColliding(validObstacles[i])) {
+	        jeepney.loseHealth();
+	        validObstacles[i].processColission(jeepney);
+	      }
+	      validObstacles[i].update();
+	    }
+
+	    for (let i = 0; i < hitObstacles.length; i++) {
+	      hitObstacles[i].update();
+	    }
+	  }
+
+	  checkJeepneyHealth() {
+	    if (this.jeepney.isDead()) {
+	      localStorage.lastScore = this.jeepney.score;
+	      this.gameOver = true;
+	      this.playing = false;
+	    }
+	  }
+
+	  endGame(context) {
 	    this.playing = false;
+	    this.jeepney.driveAudio.stop();
+	    this.audio.stop();
+	    context.clearRect(0, 0, this.size.x, this.size.y);
+	    this.drawStart(context);
+	    if (!localStorage.highScore || this.jeepney.score > localStorage.highScore) {
+	      localStorage.highScore = this.jeepney.score;
+	      $('#high-score').text(this.jeepney.score);
+	    }
 	  }
-	};
 
-	Game.prototype.endGame = function (context) {
-	  this.playing = false;
-	  this.jeepney.driveAudio.stop();
-	  this.audio.stop();
-	  context.clearRect(0, 0, this.size.x, this.size.y);
-	  this.drawStart(context);
-	  if (!localStorage.highScore || this.jeepney.score > localStorage.highScore) {
-	    localStorage.highScore = this.jeepney.score;
-	    $('#high-score').text(this.jeepney.score);
+	  draw(context) {
+	    context.clearRect(0, 0, this.size.x, this.size.y);
+	    context.fillStyle = "darkGray";
+	    context.fillRect(0, 300, this.size.x, 65);
+	    this.background.draw(context);
+	    this.drawAsset(this.clouds, context);
+	    this.drawAsset(this.backgroundObjects, context);
+	    this.jeepney.draw(context);
+	    this.drawAsset(this.obstacles, context);
+	    this.drawAsset(this.bonuses, context);
+	    this.drawScore(context);
+	    this.drawHealth(context);
 	  }
-	};
 
-	Game.prototype.draw = function (context) {
-	  context.clearRect(0, 0, this.size.x, this.size.y);
-	  context.fillStyle = "darkGray";
-	  context.fillRect(0, 300, this.size.x, 65);
-	  this.background.draw(context);
-	  this.drawAsset(this.clouds, context);
-	  this.drawAsset(this.backgroundObjects, context);
-	  this.jeepney.draw(context);
-	  this.drawAsset(this.obstacles, context);
-	  this.drawAsset(this.bonuses, context);
-	  this.drawScore(context);
-	  this.drawHealth(context);
-	};
-
-	Game.prototype.drawAsset = function (objects, context) {
-	  for (let i = 0; i < objects.length; i++) {
-	    objects[i].draw(context);
+	  drawAsset(objects, context) {
+	    for (let i = 0; i < objects.length; i++) {
+	      objects[i].draw(context);
+	    }
 	  }
-	};
 
-	Game.prototype.drawScore = function (context) {
-	  context.font = '30px VT323';
-	  context.fillStyle = 'black';
-	  context.fillText("Score: " + this.jeepney.score, 50, 48);
-	};
-
-	Game.prototype.drawLastScore = function (context) {
-	  var numHighScoreChars = localStorage.lastScore.split('').length;
-	  context.font = '50px VT323';
-	  context.fillStyle = 'black';
-	  context.fillText("Last Score: " + localStorage.lastScore, this.size.x / 2 - (11 + numHighScoreChars) * 11, 75);
-	  let img = new Image();
-	  img.src = 'assets/images/restart.png';
-	  context.drawImage(img, 1, 1, 898, 398);
-	};
-
-	Game.prototype.drawHealth = function (context) {
-	  var x = 825;
-	  for (var i = 0; i < this.jeepney.health; i++) {
-	    var img = new Image();
-	    img.src = 'assets/images/heart.png';
-	    context.drawImage(img, x, 25, 30, 30);
-	    x -= 45;
+	  drawScore(context) {
+	    context.font = '30px VT323';
+	    context.fillStyle = 'black';
+	    context.fillText("Score: " + this.jeepney.score, 50, 48);
 	  }
-	};
 
-	Game.prototype.drawStart = function (context) {
-	  if (this.gameOver) {
-	    this.drawLastScore(context);
-	  } else {
-	    let img = new Image();
-	    img.src = 'assets/images/start.png';
+	  drawLastScore(context) {
+	    const numHighScoreChars = localStorage.lastScore.split('').length;
+	    context.font = '50px VT323';
+	    context.fillStyle = 'black';
+	    context.fillText("Last Score: " + localStorage.lastScore, this.size.x / 2 - (11 + numHighScoreChars) * 11, 75);
+	    const img = new Image();
+	    img.src = 'assets/images/restart.png';
 	    context.drawImage(img, 1, 1, 898, 398);
 	  }
-	};
+
+	  drawHealth(context) {
+	    let x = 825;
+	    for (let i = 0; i < this.jeepney.health; i++) {
+	      const img = new Image();
+	      img.src = 'assets/images/heart.png';
+	      context.drawImage(img, x, 25, 30, 30);
+	      x -= 45;
+	    }
+	  }
+
+	  drawStart(context) {
+	    if (this.gameOver) {
+	      this.drawLastScore(context);
+	    } else {
+	      const img = new Image();
+	      img.src = 'assets/images/start.png';
+	      context.drawImage(img, 1, 1, 898, 398);
+	    }
+	  }
+	}
+
 	module.exports = Game;
 
 /***/ },
@@ -10536,263 +10535,260 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	const Background = __webpack_require__(4);
-	const BackgroundObject = __webpack_require__(5);
-	const Bonus = __webpack_require__(6);
-	const Jeepney = __webpack_require__(8);
-	const Obstacle = __webpack_require__(9);
+	const BackgroundObject = __webpack_require__(6);
+	const Bonus = __webpack_require__(7);
+	const Jeepney = __webpack_require__(9);
+	const Obstacle = __webpack_require__(10);
 	const defaultSpeed = 5;
 
-	const AssetManager = function (canvasSize) {
-	  this.maximumX = canvasSize.x;
-	  this.maximumY = canvasSize.y;
-	  this.allBackgroundObjects = ['palmTree', 'bank', 'church', 'greenBuilding', 'hospital', 'mall', 'pinkBuilding', 'videokeBar'];
-	  this.allBonusObjects = ['lumpia', 'mango'];
-	  this.allObstacles = ['motorcycle', 'streetDog'];
-	};
-
-	// Background
-	AssetManager.prototype.background = function (itemName) {
-	  const groundSpecs = {
-	    x: 0,
-	    y: 360,
-	    width: this.maximumX,
-	    height: 50,
-	    imgSrc: 'assets/images/background/ground.png'
-	  };
-
-	  const cloudSpecs = {
-	    x: this.maximumX,
-	    y: Math.random() * 50 + 9,
-	    width: 203,
-	    height: 61,
-	    imgSrc: 'assets/images/background/cloud.png',
-	    speed: 0.5
-	  };
-
-	  const backgroundSpecs = {
-	    ground: groundSpecs,
-	    cloud: cloudSpecs
-	  };
-
-	  return new Background(backgroundSpecs[itemName]);
-	};
-
-	// Background Objects
-	AssetManager.prototype.backgroundObject = function (item, difficulty) {
-	  const palmTreeSpecs = {
-	    x: this.maximumX,
-	    y: 167,
-	    width: 53.75,
-	    height: 135,
-	    imgSrc: 'assets/images/background_objects/palm_tree.png',
-	    name: 'palmTree',
-	    speed: defaultSpeed + difficulty
-	  };
-
-	  const bankSpecs = {
-	    x: this.maximumX,
-	    y: 141.5,
-	    width: 103.5,
-	    height: 160.5,
-	    imgSrc: 'assets/images/background_objects/bank.png',
-	    name: 'bank',
-	    speed: defaultSpeed + difficulty
-	  };
-
-	  const churchSpecs = {
-	    x: this.maximumX,
-	    y: 119,
-	    width: 63,
-	    height: 183,
-	    imgSrc: 'assets/images/background_objects/church.png',
-	    name: 'church',
-	    speed: defaultSpeed + difficulty
-	  };
-
-	  const greenBuildingSpecs = {
-	    x: this.maximumX,
-	    y: 130,
-	    width: 84,
-	    height: 171,
-	    imgSrc: 'assets/images/background_objects/green_building.png',
-	    name: 'greenBuilding',
-	    speed: defaultSpeed + difficulty
-	  };
-
-	  const hospitalSpecs = {
-	    x: this.maximumX,
-	    y: 141,
-	    width: 88.5,
-	    height: 159,
-	    imgSrc: 'assets/images/background_objects/hospital.png',
-	    name: 'hospital',
-	    speed: defaultSpeed + difficulty
-	  };
-
-	  const mallSpecs = {
-	    x: this.maximumX,
-	    y: 130.5,
-	    width: 232.5,
-	    height: 169.5,
-	    imgSrc: 'assets/images/background_objects/mall.png',
-	    name: 'mall',
-	    speed: defaultSpeed + difficulty
-	  };
-
-	  const pinkBuildingSpecs = {
-	    x: this.maximumX,
-	    y: 181,
-	    width: 132,
-	    height: 123,
-	    imgSrc: 'assets/images/background_objects/pink_building.png',
-	    name: 'pinkBuilding',
-	    speed: defaultSpeed + difficulty
-	  };
-
-	  const videokeBarSpecs = {
-	    x: this.maximumX,
-	    y: 150.5,
-	    width: 84.5,
-	    height: 153.5,
-	    imgSrc: 'assets/images/background_objects/videoke_bar.png',
-	    name: 'videokeBar',
-	    speed: defaultSpeed + difficulty
-	  };
-
-	  const backgroundObjectSpecs = {
-	    palmTree: palmTreeSpecs,
-	    bank: bankSpecs,
-	    church: churchSpecs,
-	    greenBuilding: greenBuildingSpecs,
-	    hospital: hospitalSpecs,
-	    mall: mallSpecs,
-	    pinkBuilding: pinkBuildingSpecs,
-	    videokeBar: videokeBarSpecs
-	  };
-
-	  return new BackgroundObject(backgroundObjectSpecs[item]);
-	};
-
-	AssetManager.prototype.randomBackgroundObject = function (previousItem, difficulty) {
-	  const rand = Math.floor(Math.random() * this.allBackgroundObjects.length);
-	  const itemName = this.allBackgroundObjects[rand];
-	  const repeatItem = previousItem && itemName === previousItem.name;
-
-	  if (repeatItem) {
-	    return this.randomBackgroundObject.call(this, previousItem, difficulty);
+	class AssetManager {
+	  constructor(canvasSize) {
+	    this.maximumX = canvasSize.x;
+	    this.maximumY = canvasSize.y;
+	    this.allBackgroundObjects = ['palmTree', 'bank', 'church', 'greenBuilding', 'hospital', 'mall', 'pinkBuilding', 'videokeBar'];
+	    this.allBonusObjects = ['lumpia', 'mango'];
+	    this.allObstacles = ['motorcycle', 'streetDog'];
 	  }
 
-	  return this.backgroundObject(itemName, difficulty);
-	};
+	  background(itemName) {
+	    const groundSpecs = {
+	      x: 0,
+	      y: 360,
+	      width: this.maximumX,
+	      height: 50,
+	      imgSrc: 'assets/images/background/ground.png'
+	    };
 
-	// Bonus Objects
-	AssetManager.prototype.bonusObject = function (itemName, difficulty) {
-	  const lumpiaSpecs = {
-	    x: this.maximumX,
-	    y: 291.95,
-	    width: 65.7,
-	    height: 42.3,
-	    speed: defaultSpeed + difficulty,
-	    imgSrc: 'assets/images/bonuses/lumpia.png',
-	    audioSrc: 'assets/audio/bonus.wav',
-	    name: 'lumpia'
-	  };
+	    const cloudSpecs = {
+	      x: this.maximumX,
+	      y: Math.random() * 50 + 9,
+	      width: 203,
+	      height: 61,
+	      imgSrc: 'assets/images/background/cloud.png',
+	      speed: 0.5
+	    };
 
-	  const mangoSpecs = {
-	    x: this.maximumX,
-	    y: 287.65,
-	    width: 52.2,
-	    height: 46.6,
-	    speed: defaultSpeed + difficulty,
-	    imgSrc: 'assets/images/bonuses/mango.png',
-	    audioSrc: 'assets/audio/bonus.wav',
-	    name: 'mango'
-	  };
+	    const backgroundSpecs = {
+	      ground: groundSpecs,
+	      cloud: cloudSpecs
+	    };
 
-	  const bonusSpecs = {
-	    lumpia: lumpiaSpecs,
-	    mango: mangoSpecs
-	  };
+	    return new Background(backgroundSpecs[itemName]);
+	  }
 
-	  return new Bonus(bonusSpecs[itemName]);
-	};
+	  backgroundObject(item, difficulty) {
+	    const palmTreeSpecs = {
+	      x: this.maximumX,
+	      y: 167,
+	      width: 53.75,
+	      height: 135,
+	      imgSrc: 'assets/images/background_objects/palm_tree.png',
+	      name: 'palmTree',
+	      speed: defaultSpeed + difficulty
+	    };
 
-	AssetManager.prototype.randomBonusObject = function (difficulty) {
-	  const rand = Math.floor(Math.random() * this.allBonusObjects.length);
-	  const itemName = this.allBonusObjects[rand];
+	    const bankSpecs = {
+	      x: this.maximumX,
+	      y: 141.5,
+	      width: 103.5,
+	      height: 160.5,
+	      imgSrc: 'assets/images/background_objects/bank.png',
+	      name: 'bank',
+	      speed: defaultSpeed + difficulty
+	    };
 
-	  return this.bonusObject(itemName, difficulty);
-	};
+	    const churchSpecs = {
+	      x: this.maximumX,
+	      y: 119,
+	      width: 63,
+	      height: 183,
+	      imgSrc: 'assets/images/background_objects/church.png',
+	      name: 'church',
+	      speed: defaultSpeed + difficulty
+	    };
 
-	// Obstacles
-	AssetManager.prototype.obstacle = function (obstacleName, difficulty) {
-	  const motorcycleSpecs = {
-	    x: this.maximumX,
-	    y: 270,
-	    width: 97.25,
-	    height: 64.25,
-	    speed: defaultSpeed - 0.5 + difficulty,
-	    imgSrc: 'assets/images/obstacles/motorcycle.png',
-	    audioSrc: 'assets/audio/motorcycle_hit.mp3',
-	    audioVol: 0.2,
-	    name: 'motorcycle'
-	  };
+	    const greenBuildingSpecs = {
+	      x: this.maximumX,
+	      y: 130,
+	      width: 84,
+	      height: 171,
+	      imgSrc: 'assets/images/background_objects/green_building.png',
+	      name: 'greenBuilding',
+	      speed: defaultSpeed + difficulty
+	    };
 
-	  const streetDogSpecs = {
-	    x: this.maximumX,
-	    y: 283.85,
-	    width: 90.6,
-	    height: 50.4,
-	    speed: defaultSpeed + 0.5 + difficulty,
-	    imgSrc: 'assets/images/obstacles/street_dog.png',
-	    audioSrc: 'assets/audio/dog_hit.mp3',
-	    audioVol: 1.0,
-	    name: 'streetDog'
-	  };
+	    const hospitalSpecs = {
+	      x: this.maximumX,
+	      y: 141,
+	      width: 88.5,
+	      height: 159,
+	      imgSrc: 'assets/images/background_objects/hospital.png',
+	      name: 'hospital',
+	      speed: defaultSpeed + difficulty
+	    };
 
-	  const obstacleSpecs = {
-	    motorcycle: motorcycleSpecs,
-	    streetDog: streetDogSpecs
-	  };
+	    const mallSpecs = {
+	      x: this.maximumX,
+	      y: 130.5,
+	      width: 232.5,
+	      height: 169.5,
+	      imgSrc: 'assets/images/background_objects/mall.png',
+	      name: 'mall',
+	      speed: defaultSpeed + difficulty
+	    };
 
-	  return new Obstacle(obstacleSpecs[obstacleName]);
-	};
+	    const pinkBuildingSpecs = {
+	      x: this.maximumX,
+	      y: 181,
+	      width: 132,
+	      height: 123,
+	      imgSrc: 'assets/images/background_objects/pink_building.png',
+	      name: 'pinkBuilding',
+	      speed: defaultSpeed + difficulty
+	    };
 
-	AssetManager.prototype.randomObstacle = function (difficulty) {
-	  const rand = Math.floor(Math.random() * this.allObstacles.length);
-	  const itemName = this.allObstacles[rand];
+	    const videokeBarSpecs = {
+	      x: this.maximumX,
+	      y: 150.5,
+	      width: 84.5,
+	      height: 153.5,
+	      imgSrc: 'assets/images/background_objects/videoke_bar.png',
+	      name: 'videokeBar',
+	      speed: defaultSpeed + difficulty
+	    };
 
-	  return this.obstacle(itemName, difficulty);
-	};
+	    const backgroundObjectSpecs = {
+	      palmTree: palmTreeSpecs,
+	      bank: bankSpecs,
+	      church: churchSpecs,
+	      greenBuilding: greenBuildingSpecs,
+	      hospital: hospitalSpecs,
+	      mall: mallSpecs,
+	      pinkBuilding: pinkBuildingSpecs,
+	      videokeBar: videokeBarSpecs
+	    };
 
-	// Jeepney
-	AssetManager.prototype.jeepney = function () {
-	  return new Jeepney();
-	};
+	    return new BackgroundObject(backgroundObjectSpecs[item]);
+	  }
+
+	  randomBackgroundObject(previousItem, difficulty) {
+	    const rand = Math.floor(Math.random() * this.allBackgroundObjects.length);
+	    const itemName = this.allBackgroundObjects[rand];
+	    const repeatItem = previousItem && itemName === previousItem.name;
+
+	    if (repeatItem) {
+	      return this.randomBackgroundObject.call(this, previousItem, difficulty);
+	    }
+
+	    return this.backgroundObject(itemName, difficulty);
+	  }
+
+	  bonusObject(itemName, difficulty) {
+	    const lumpiaSpecs = {
+	      x: this.maximumX,
+	      y: 291.95,
+	      width: 65.7,
+	      height: 42.3,
+	      speed: defaultSpeed + difficulty,
+	      imgSrc: 'assets/images/bonuses/lumpia.png',
+	      audioSrc: 'assets/audio/bonus.wav',
+	      name: 'lumpia'
+	    };
+
+	    const mangoSpecs = {
+	      x: this.maximumX,
+	      y: 287.65,
+	      width: 52.2,
+	      height: 46.6,
+	      speed: defaultSpeed + difficulty,
+	      imgSrc: 'assets/images/bonuses/mango.png',
+	      audioSrc: 'assets/audio/bonus.wav',
+	      name: 'mango'
+	    };
+
+	    const bonusSpecs = {
+	      lumpia: lumpiaSpecs,
+	      mango: mangoSpecs
+	    };
+
+	    return new Bonus(bonusSpecs[itemName]);
+	  }
+
+	  randomBonusObject(difficulty) {
+	    const rand = Math.floor(Math.random() * this.allBonusObjects.length);
+	    const itemName = this.allBonusObjects[rand];
+
+	    return this.bonusObject(itemName, difficulty);
+	  }
+
+	  obstacle(obstacleName, difficulty) {
+	    const motorcycleSpecs = {
+	      x: this.maximumX,
+	      y: 270,
+	      width: 97.25,
+	      height: 64.25,
+	      speed: defaultSpeed - 0.5 + difficulty,
+	      imgSrc: 'assets/images/obstacles/motorcycle.png',
+	      audioSrc: 'assets/audio/motorcycle_hit.mp3',
+	      audioVol: 0.2,
+	      name: 'motorcycle'
+	    };
+
+	    const streetDogSpecs = {
+	      x: this.maximumX,
+	      y: 283.85,
+	      width: 90.6,
+	      height: 50.4,
+	      speed: defaultSpeed + 0.5 + difficulty,
+	      imgSrc: 'assets/images/obstacles/street_dog.png',
+	      audioSrc: 'assets/audio/dog_hit.mp3',
+	      audioVol: 1.0,
+	      name: 'streetDog'
+	    };
+
+	    const obstacleSpecs = {
+	      motorcycle: motorcycleSpecs,
+	      streetDog: streetDogSpecs
+	    };
+
+	    return new Obstacle(obstacleSpecs[obstacleName]);
+	  }
+
+	  randomObstacle(difficulty) {
+	    const rand = Math.floor(Math.random() * this.allObstacles.length);
+	    const itemName = this.allObstacles[rand];
+
+	    return this.obstacle(itemName, difficulty);
+	  }
+
+	  jeepney() {
+	    const jeepneySpecs = {
+	      imgSrc: 'assets/images/jeepney/jeepney_no_damage.png',
+	      x: 50,
+	      y: 210.5,
+	      width: 168,
+	      height: 122
+	    };
+
+	    return new Jeepney(jeepneySpecs);
+	  }
+	}
 
 	module.exports = AssetManager;
 
 /***/ },
 /* 4 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	var Background = function (data) {
-	  this.img = new Image();
-	  this.img.src = data.imgSrc;
-	  this.x = data.x;
-	  this.y = data.y;
-	  this.height = data.height;
-	  this.width = data.width;
-	  this.speed = data.speed || 0;
-	};
+	const GameObject = __webpack_require__(5);
 
-	Background.prototype.update = function () {
-	  this.x -= this.speed;
-	};
+	class Background extends GameObject {
+	  constructor(data) {
+	    super(data);
 
-	Background.prototype.draw = function (context) {
-	  context.drawImage(this.img, this.x, this.y, this.width, this.height);
-	};
+	    this.speed = data.speed || 0;
+	  }
+	}
 
 	module.exports = Background;
 
@@ -10800,262 +10796,265 @@
 /* 5 */
 /***/ function(module, exports) {
 
-	var BackgroundObject = function (data) {
-	  this.img = new Image();
-	  this.img.src = data.imgSrc;
-	  this.x = data.x;
-	  this.y = data.y;
-	  this.width = data.width;
-	  this.height = data.height;
-	  this.speed = data.speed || 5;
-	  this.name = data.name;
-	};
+	class GameObject {
+	  constructor(data) {
+	    this.img = new Image();
+	    this.img.src = data.imgSrc;
+	    this.x = data.x;
+	    this.y = data.y;
+	    this.width = data.width;
+	    this.height = data.height;
+	    this.speed = data.speed || 5;
+	    this.name = data.name;
+	  }
 
-	BackgroundObject.prototype.update = function () {
-	  this.x -= this.speed;
-	};
+	  update() {
+	    this.x -= this.speed;
+	  }
 
-	BackgroundObject.prototype.draw = function (context) {
-	  context.drawImage(this.img, this.x, this.y, this.width, this.height);
-	};
+	  draw(context) {
+	    context.drawImage(this.img, this.x, this.y, this.width, this.height);
+	  }
+	}
 
-	module.exports = BackgroundObject;
+	module.exports = GameObject;
 
 /***/ },
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const AudioPlayer = __webpack_require__(7);
+	const GameObject = __webpack_require__(5);
 
-	var Bonus = function (data) {
-	  this.img = new Image();
-	  this.img.src = data.imgSrc;
-	  this.audio = new AudioPlayer({ source: data.audioSrc, volume: 0.2 });
-	  this.x = data.x;
-	  this.y = data.y;
-	  this.width = data.width;
-	  this.height = data.height;
-	  this.speed = data.speed || 5;
-	  this.name = data.name;
-	  this.yVelocity = data.yVelocity || 1;
-	  this.hitByJeepney = false;
-	  this.bonusPoints = false;
-	};
+	class BackgroundObject extends GameObject {
+	  constructor(data) {
+	    super(data);
+	  }
+	}
 
-	Bonus.prototype.update = function () {
-	  var minY = 334.25 - 100;
-	  var maxY = 334.25 - this.height;
+	module.exports = BackgroundObject;
 
-	  if (this.hitByJeepney) {
-	    this.y -= 2;
-	    return;
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const AudioPlayer = __webpack_require__(8);
+	const GameObject = __webpack_require__(5);
+
+	class Bonus extends GameObject {
+	  constructor(data) {
+	    super(data);
+
+	    this.audio = new AudioPlayer({ source: data.audioSrc, volume: 0.2 });
+	    this.yVelocity = data.yVelocity || 1;
+	    this.hitByJeepney = false;
+	    this.bonusPoints = false;
 	  }
 
-	  if (this.y >= maxY || this.y <= minY) {
-	    this.yVelocity *= -1;
+	  update() {
+	    const minY = 334.25 - 100;
+	    const maxY = 334.25 - this.height;
+
+	    if (this.hitByJeepney) {
+	      this.y -= 2;
+	      return;
+	    }
+
+	    if (this.y >= maxY || this.y <= minY) {
+	      this.yVelocity *= -1;
+	    }
+
+	    this.x -= this.speed;
+	    this.y += this.yVelocity;
 	  }
 
-	  this.x -= this.speed;
-	  this.y += this.yVelocity;
-	};
-
-	Bonus.prototype.draw = function (context) {
-	  if (this.bonusPoints) {
-	    context.font = '30px VT323';
-	    context.fillStyle = 'black';
-	    context.fillText("+500 pts", this.x, this.y);
-	  } else {
-	    context.drawImage(this.img, this.x, this.y, this.width, this.height);
+	  draw(context) {
+	    if (this.bonusPoints) {
+	      context.font = '30px VT323';
+	      context.fillStyle = 'black';
+	      context.fillText("+500 pts", this.x, this.y);
+	    } else {
+	      context.drawImage(this.img, this.x, this.y, this.width, this.height);
+	    }
 	  }
-	};
 
-	Bonus.prototype.processColission = function (jeepney) {
-	  this.hitByJeepney = true;
-	  this.audio.play();
+	  processColission(jeepney) {
+	    this.hitByJeepney = true;
+	    this.audio.play();
 
-	  if (jeepney.health === 5) {
-	    this.bonusPoints = true;
-	  } else {
-	    this.img.src = 'assets/images/heart.png';
-	    this.width = 30;
-	    this.height = 30;
+	    if (jeepney.health === 5) {
+	      this.bonusPoints = true;
+	    } else {
+	      this.img.src = 'assets/images/heart.png';
+	      this.width = 30;
+	      this.height = 30;
+	    }
 	  }
-	};
+	}
 
 	module.exports = Bonus;
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports) {
 
-	var AudioPlayer = function (data) {
-	  this.audio = new Audio(data.source);
-	  this.audio.loop = data.loops || false;
-	  this.audio.volume = data.volume || 1.0;
-	};
+	class AudioPlayer {
+	  constructor(data) {
+	    this.audio = new Audio(data.source);
+	    this.audio.loop = data.loops || false;
+	    this.audio.volume = data.volume || 1.0;
+	  }
 
-	AudioPlayer.prototype.play = function () {
-	  if (!this.audio.loop) {
+	  play() {
+	    if (!this.audio.loop) {
+	      this.audio.pause();
+	      this.audio.currentTime = 0;
+	    }
+	    this.audio.play();
+	  }
+
+	  stop() {
 	    this.audio.pause();
 	    this.audio.currentTime = 0;
 	  }
-	  this.audio.play();
-	};
-
-	AudioPlayer.prototype.stop = function () {
-	  this.audio.pause();
-	  this.audio.currentTime = 0;
-	};
+	}
 
 	module.exports = AudioPlayer;
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	const AudioPlayer = __webpack_require__(7);
-
-	var Jeepney = function () {
-	  this.img = new Image();
-	  this.img.src = 'assets/images/jeepney/jeepney_no_damage.png';
-	  this.driveAudio = new AudioPlayer({ source: 'assets/audio/jeepney.mp3', loops: true, volume: 0.1 });
-	  this.jumpAudio = new AudioPlayer({ source: 'assets/audio/jeepney_jump.mp3', volume: 0.2 });
-	  this.x = 50;
-	  this.y = 210.5;
-	  this.width = 168;
-	  this.height = 122;
-	  this.health = 5;
-	  this.jumping = false;
-	  this.gravity = 0.38;
-	  this.yVelocity = 0;
-	  this.speed = 5;
-	  this.score = 0;
-	};
-
-	Jeepney.prototype.loseHealth = function () {
-	  this.health--;
-	  this.updateDamageShown();
-	};
-
-	Jeepney.prototype.gainHealth = function () {
-	  this.health++;
-	  this.updateDamageShown();
-	};
-
-	Jeepney.prototype.jump = function () {
-	  if (!this.jumping) {
-	    this.jumping = true;
-	    this.yVelocity = -this.speed * 2;
-	    this.jumpAudio.play();
-	  }
-	};
-
-	Jeepney.prototype.draw = function (context) {
-	  context.drawImage(this.img, this.x, this.y, this.width, this.height);
-	};
-
-	Jeepney.prototype.updateDamageShown = function () {
-	  if (this.health < 2) {
-	    this.img.src = 'assets/images/jeepney/jeepney_full_damage.png';
-	  } else if (this.health < 3) {
-	    this.img.src = 'assets/images/jeepney/jeepney_damage_2.png';
-	  } else if (this.health < 5) {
-	    this.img.src = 'assets/images/jeepney/jeepney_damage_1.png';
-	  } else {
-	    this.img.src = 'assets/images/jeepney/jeepney_no_damage.png';
-	  }
-	};
-
-	Jeepney.prototype.update = function () {
-	  var bottomOfJeepneyWhenOnRoad = 332.50;
-
-	  if (this.jumping) {
-	    this.y += this.yVelocity;
-	    this.yVelocity += this.gravity;
-	    if (this.y >= bottomOfJeepneyWhenOnRoad - this.height) {
-	      this.y = bottomOfJeepneyWhenOnRoad - this.height;
-	      this.jumping = false;
-	    }
-	  }
-
-	  this.score++;
-	};
-
-	Jeepney.prototype.isColliding = function (obstacle) {
-	  return (
-	    // Jeepney's front is in front of the rear of the obstacle (+ buffer)
-	    this.x + this.width >= obstacle.x + 15 &&
-	    // Bottom of the jeepney is beneath the top of the obstacle
-	    this.y + this.height >= obstacle.y &&
-	    // Jeepney's rear is before the front of the obstacle (- buffer of 50 pixels)
-	    this.x <= obstacle.x + obstacle.width - 50
-	  );
-	};
-
-	Jeepney.prototype.collectBonus = function () {
-	  if (this.health === 5) {
-	    this.score += 500;
-	  } else {
-	    this.gainHealth();
-	  }
-	};
-
-	Jeepney.prototype.isDead = function () {
-	  return this.health <= 0;
-	};
-
-	module.exports = Jeepney;
 
 /***/ },
 /* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const AudioPlayer = __webpack_require__(7);
+	const AudioPlayer = __webpack_require__(8);
+	const GameObject = __webpack_require__(5);
 
-	var Obstacle = function (data) {
-	  this.img = new Image();
-	  this.audio = new AudioPlayer({ source: data.audioSrc, volume: data.audioVol });
-	  this.img.src = data.imgSrc;
-	  this.x = data.x;
-	  this.y = data.y;
-	  this.width = data.width;
-	  this.height = data.height;
-	  this.speed = data.speed || 5;
-	  this.hitByJeepney = false;
-	  this.yVelocity = 0;
-	  this.xVelocity = 0;
-	  this.name = data.name;
-	};
+	class Jeepney extends GameObject {
+	  constructor(data) {
+	    super(data);
 
-	Obstacle.prototype.update = function () {
-	  if (this.hitByJeepney) {
-	    this.y += this.yVelocity;
-	    this.x += this.xVelocity;
-	  } else {
-	    this.x -= this.speed;
+	    this.driveAudio = new AudioPlayer({ source: 'assets/audio/jeepney.mp3', loops: true, volume: 0.1 });
+	    this.jumpAudio = new AudioPlayer({ source: 'assets/audio/jeepney_jump.mp3', volume: 0.2 });
+	    this.health = 5;
+	    this.jumping = false;
+	    this.gravity = 0.38;
+	    this.yVelocity = 0;
+	    this.score = 0;
 	  }
-	};
 
-	Obstacle.prototype.draw = function (context) {
-	  context.drawImage(this.img, this.x, this.y, this.width, this.height);
-	};
-
-	Obstacle.prototype.processColission = function (jeepney) {
-	  var jeepneyFront = jeepney.x + jeepney.width;
-	  // Front of jeepney is hitting within the back 35 pixels of the obstacle
-	  var headOnCollision = jeepneyFront >= this.x + 15 && jeepneyFront <= this.x + 50;
-
-	  this.audio.play();
-	  this.hitByJeepney = true;
-
-	  if (headOnCollision) {
-	    this.yVelocity = -2;
-	    this.xVelocity = 12;
-	    // Else jeepney is on top of obstacle - send to bottom of canvas
-	  } else {
-	    this.yVelocity = 12;
+	  loseHealth() {
+	    this.health--;
+	    this.updateDamageShown();
 	  }
-	};
+
+	  gainHealth() {
+	    this.health++;
+	    this.updateDamageShown();
+	  }
+
+	  jump() {
+	    if (!this.jumping) {
+	      this.jumping = true;
+	      this.yVelocity = -this.speed * 2;
+	      this.jumpAudio.play();
+	    }
+	  }
+
+	  updateDamageShown() {
+	    if (this.health < 2) {
+	      this.img.src = 'assets/images/jeepney/jeepney_full_damage.png';
+	    } else if (this.health < 3) {
+	      this.img.src = 'assets/images/jeepney/jeepney_damage_2.png';
+	    } else if (this.health < 5) {
+	      this.img.src = 'assets/images/jeepney/jeepney_damage_1.png';
+	    } else {
+	      this.img.src = 'assets/images/jeepney/jeepney_no_damage.png';
+	    }
+	  }
+
+	  update() {
+	    const bottomOfJeepneyWhenOnRoad = 332.50;
+
+	    if (this.jumping) {
+	      this.y += this.yVelocity;
+	      this.yVelocity += this.gravity;
+	      if (this.y >= bottomOfJeepneyWhenOnRoad - this.height) {
+	        this.y = bottomOfJeepneyWhenOnRoad - this.height;
+	        this.jumping = false;
+	      }
+	    }
+
+	    this.score++;
+	  }
+
+	  isColliding(obstacle) {
+	    return (
+	      // Jeepney's front is in front of the rear of the obstacle (+ buffer)
+	      this.x + this.width >= obstacle.x + 15 &&
+	      // Bottom of the jeepney is beneath the top of the obstacle
+	      this.y + this.height >= obstacle.y &&
+	      // Jeepney's rear is before the front of the obstacle (- buffer of 50 pixels)
+	      this.x <= obstacle.x + obstacle.width - 50
+	    );
+	  }
+
+	  collectBonus() {
+	    if (this.health === 5) {
+	      this.score += 500;
+	    } else {
+	      this.gainHealth();
+	    }
+	  }
+
+	  isDead() {
+	    return this.health <= 0;
+	  }
+	}
+
+	module.exports = Jeepney;
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const AudioPlayer = __webpack_require__(8);
+	const GameObject = __webpack_require__(5);
+
+	class Obstacle extends GameObject {
+	  constructor(data) {
+	    super(data);
+
+	    this.audio = new AudioPlayer({ source: data.audioSrc, volume: data.audioVol });
+	    this.hitByJeepney = false;
+	    this.yVelocity = 0;
+	    this.xVelocity = 0;
+	  }
+
+	  update() {
+	    if (this.hitByJeepney) {
+	      this.y += this.yVelocity;
+	      this.x += this.xVelocity;
+	    } else {
+	      this.x -= this.speed;
+	    }
+	  }
+
+	  processColission(jeepney) {
+	    const jeepneyFront = jeepney.x + jeepney.width;
+	    // Front of jeepney is hitting within the back 35 pixels of the obstacle
+	    const headOnCollision = jeepneyFront >= this.x + 15 && jeepneyFront <= this.x + 50;
+
+	    this.audio.play();
+	    this.hitByJeepney = true;
+
+	    if (headOnCollision) {
+	      this.yVelocity = -2;
+	      this.xVelocity = 12;
+	      // Else jeepney is on top of obstacle - send to bottom of canvas
+	    } else {
+	      this.yVelocity = 12;
+	    }
+	  }
+
+	}
 
 	module.exports = Obstacle;
 
