@@ -60,15 +60,25 @@
 	  }
 	};
 
+	const touchedCanvas = touchEvent => {
+	  const $game = $('#game');
+	  const startX = $game.position().left;
+	  const startY = $game.position().top;
+	  const endX = startX + $game.width();
+	  const endY = startY + $game.height();
+
+	  return touchEvent.pageX >= startX && touchEvent.pageX <= endX && touchEvent.pageY >= startY && touchEvent.pageY <= endY;
+	};
+
 	const startGame = () => {
 	  let game = new Game(canvas, gameContext);
 
 	  $(document).on('keydown touchstart', e => {
-	    if (!game.playing && (e.keyCode === 32 || e.changedTouches)) {
+	    if (!game.playing && (e.keyCode === 32 || touchedCanvas(e.changedTouches[0]))) {
 	      game = new Game(canvas, gameContext);
 	      game.playing = true;
 	      game.startUp();
-	    } else if (game.playing && (e.keyCode === 32 || e.changedTouches)) {
+	    } else if (game.playing && (e.keyCode === 32 || touchedCanvas(e.changedTouches[0]))) {
 	      game.jeepney.jump();
 	    }
 	  });
