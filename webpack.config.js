@@ -21,6 +21,9 @@ module.exports = {
     extensions: ['', '.js', '.json', '.scss', '.css']
   },
   plugins: [
-    new OfflinePlugin(),
+    new OfflinePlugin({
+      caches: 'all',
+      publicPath: 'jeepney_jump' 
+    })
   ]
 };
