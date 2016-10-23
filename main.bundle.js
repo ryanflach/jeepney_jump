@@ -44,15 +44,15 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const Game = __webpack_require__(1);
-	const $ = __webpack_require__(2);
+	__webpack_require__(1).install();
+	const Game = __webpack_require__(2);
+	const $ = __webpack_require__(3);
 	const canvas = document.getElementById('game');
 	const gameContext = canvas.getContext('2d');
 
 	$(document).ready(() => {
 	  startGame();
 	  displayHighScore();
-	  registerServiceWorker();
 	});
 
 	const displayHighScore = () => {
@@ -103,11 +103,80 @@
 
 /***/ },
 /* 1 */
+/***/ function(module, exports) {
+
+	var appCacheIframe;
+
+	function hasSW() {
+	  return 'serviceWorker' in navigator &&
+	    // This is how I block Chrome 40 and detect Chrome 41, because first has
+	    // bugs with history.pustState and/or hashchange
+	    (window.fetch || 'imageRendering' in document.documentElement.style) &&
+	    (window.location.protocol === 'https:' || window.location.hostname === 'localhost')
+	}
+
+	function install(options) {
+	  options || (options = {});
+
+	  
+	    if (hasSW()) {
+	      var registration = navigator.serviceWorker
+	        .register(
+	          "sw.js"
+	          
+	        );
+
+	      
+
+	      return;
+	    }
+	  
+
+	  
+	    if (window.applicationCache) {
+	      var directory = "appcache/";
+	      var name = "manifest";
+
+	      var doLoad = function() {
+	        var page = directory + name + '.html';
+	        var iframe = document.createElement('iframe');
+
+	        
+
+	        iframe.src = page;
+	        iframe.style.display = 'none';
+
+	        appCacheIframe = iframe;
+	        document.body.appendChild(iframe);
+	      };
+
+	      if (document.readyState === 'complete') {
+	        setTimeout(doLoad);
+	      } else {
+	        window.addEventListener('load', doLoad);
+	      }
+
+	      return;
+	    }
+	  
+	}
+
+	function applyUpdate(callback, errback) {
+	  
+
+	  
+	}
+
+	exports.install = install;
+	exports.applyUpdate = applyUpdate;
+
+/***/ },
+/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const $ = __webpack_require__(2);
-	const Assets = __webpack_require__(3);
-	const AudioPlayer = __webpack_require__(8);
+	const $ = __webpack_require__(3);
+	const Assets = __webpack_require__(4);
+	const AudioPlayer = __webpack_require__(9);
 
 	class Game {
 	  constructor(canvas, context) {
@@ -332,7 +401,7 @@
 	module.exports = Game;
 
 /***/ },
-/* 2 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -10558,14 +10627,14 @@
 
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const Background = __webpack_require__(4);
-	const BackgroundObject = __webpack_require__(6);
-	const Bonus = __webpack_require__(7);
-	const Jeepney = __webpack_require__(9);
-	const Obstacle = __webpack_require__(10);
+	const Background = __webpack_require__(5);
+	const BackgroundObject = __webpack_require__(7);
+	const Bonus = __webpack_require__(8);
+	const Jeepney = __webpack_require__(10);
+	const Obstacle = __webpack_require__(11);
 	const defaultSpeed = 5;
 
 	class AssetManager {
@@ -10804,10 +10873,10 @@
 	module.exports = AssetManager;
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const GameObject = __webpack_require__(5);
+	const GameObject = __webpack_require__(6);
 
 	class Background extends GameObject {
 	  constructor(data) {
@@ -10820,7 +10889,7 @@
 	module.exports = Background;
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports) {
 
 	class GameObject {
@@ -10847,10 +10916,10 @@
 	module.exports = GameObject;
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const GameObject = __webpack_require__(5);
+	const GameObject = __webpack_require__(6);
 
 	class BackgroundObject extends GameObject {
 	  constructor(data) {
@@ -10861,11 +10930,11 @@
 	module.exports = BackgroundObject;
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const AudioPlayer = __webpack_require__(8);
-	const GameObject = __webpack_require__(5);
+	const AudioPlayer = __webpack_require__(9);
+	const GameObject = __webpack_require__(6);
 
 	class Bonus extends GameObject {
 	  constructor(data) {
@@ -10921,7 +10990,7 @@
 	module.exports = Bonus;
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports) {
 
 	class AudioPlayer {
@@ -10948,11 +11017,11 @@
 	module.exports = AudioPlayer;
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const AudioPlayer = __webpack_require__(8);
-	const GameObject = __webpack_require__(5);
+	const AudioPlayer = __webpack_require__(9);
+	const GameObject = __webpack_require__(6);
 
 	class Jeepney extends GameObject {
 	  constructor(data) {
@@ -11039,11 +11108,11 @@
 	module.exports = Jeepney;
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const AudioPlayer = __webpack_require__(8);
-	const GameObject = __webpack_require__(5);
+	const AudioPlayer = __webpack_require__(9);
+	const GameObject = __webpack_require__(6);
 
 	class Obstacle extends GameObject {
 	  constructor(data) {
