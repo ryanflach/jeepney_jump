@@ -6,6 +6,7 @@ this.addEventListener('install', function(event) {
         '/jeepney_jump/index.html',
         '/jeepney_jump/favicon.ico',
         '/jeepney_jump/assets/style.css',
+        '/jeepney_jump/main.bundle.js',
         '/jeepney_jump/lib/index.js',
         '/jeepney_jump/lib/asset_manager.js',
         '/jeepney_jump/lib/audio_player.js',
