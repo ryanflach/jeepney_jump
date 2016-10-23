@@ -62,24 +62,28 @@
 	};
 
 	const touchedCanvas = touchEvent => {
+	  if (!touchEvent) {
+	    return false;
+	  }
+
 	  const $game = $('#game');
 	  const startX = $game.position().left;
 	  const startY = $game.position().top;
 	  const endX = startX + $game.width();
 	  const endY = startY + $game.height();
 
-	  return touchEvent.pageX >= startX && touchEvent.pageX <= endX && touchEvent.pageY >= startY && touchEvent.pageY <= endY;
+	  return touchEvent[0].pageX >= startX && touchEvent[0].pageX <= endX && touchEvent[0].pageY >= startY && touchEvent[0].pageY <= endY;
 	};
 
 	const startGame = () => {
 	  let game = new Game(canvas, gameContext);
 
 	  $(document).on('keydown touchstart', e => {
-	    if (!game.playing && (e.keyCode === 32 || touchedCanvas(e.changedTouches[0]))) {
+	    if (!game.playing && (e.keyCode === 32 || touchedCanvas(e.changedTouches))) {
 	      game = new Game(canvas, gameContext);
 	      game.playing = true;
 	      game.startUp();
-	    } else if (game.playing && (e.keyCode === 32 || touchedCanvas(e.changedTouches[0]))) {
+	    } else if (game.playing && (e.keyCode === 32 || touchedCanvas(e.changedTouches))) {
 	      game.jeepney.jump();
 	    }
 	  });
