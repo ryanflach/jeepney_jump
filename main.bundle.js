@@ -87,7 +87,7 @@
 
 	const registerServiceWorker = () => {
 	  if ('serviceWorker' in navigator) {
-	    navigator.serviceWorker.register('/jeepney_jump/lib/service_worker.js').then(function (reg) {
+	    navigator.serviceWorker.register('/jeepney_jump/service_worker.js').then(function (reg) {
 	      // registration worked
 	      console.log('Registration succeeded. Scope is ' + reg.scope);
 	    }).catch(function (error) {
