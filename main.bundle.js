@@ -52,6 +52,7 @@
 	$(document).ready(() => {
 	  startGame();
 	  displayHighScore();
+	  registerServiceWorker();
 	});
 
 	const displayHighScore = () => {
@@ -82,6 +83,18 @@
 	      game.jeepney.jump();
 	    }
 	  });
+	};
+
+	const registerServiceWorker = () => {
+	  if ('serviceWorker' in navigator) {
+	    navigator.serviceWorker.register('/jeepney_jump/lib/service_worker.js').then(function (reg) {
+	      // registration worked
+	      console.log('Registration succeeded. Scope is ' + reg.scope);
+	    }).catch(function (error) {
+	      // registration failed
+	      console.log('Registration failed with ' + error);
+	    });
+	  }
 	};
 
 /***/ },
