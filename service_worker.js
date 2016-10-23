@@ -1,6 +1,6 @@
 this.addEventListener('install', function(event) {
   event.waitUntil(
-    caches.open('v1').then(function(cache) {
+    caches.open('v1').then((cache) => {
       return cache.addAll([
         '/jeepney_jump/',
         '/jeepney_jump/index.html',
@@ -48,27 +48,27 @@ this.addEventListener('install', function(event) {
   );
 });
 
-this.addEventListener('fetch', function(event) {
+this.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then(function(resp) {
-      return resp || fetch(event.request).then(function(response) {
-        caches.open('v1').then(function(cache) {
+    caches.match(event.request).then((resp) => {
+      return resp || fetch(event.request).then((response) => {
+        caches.open('v1').then((cache) => {
           cache.put(event.request, response.clone());
         });
         return response;
       });
-    }).catch(function() {
-      return caches.match('/sw-test/gallery/myLittleVader.jpg');
+    }).catch(() => {
+      return caches.match('/jeepney_jump/images/start.png');
     })
   );
 });
 
-this.addEventListener('activate', function(event) {
-  var cacheWhitelist = ['v1'];
+this.addEventListener('activate', (event) => {
+  const cacheWhitelist = ['v1'];
 
   event.waitUntil(
-    caches.keys().then(function(keyList) {
-      return Promise.all(keyList.map(function(key) {
+    caches.keys().then((keyList) => {
+      return Promise.all(keyList.map((key) => {
         if (cacheWhitelist.indexOf(key) === -1) {
           return caches.delete(key);
         }
