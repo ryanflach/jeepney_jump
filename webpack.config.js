@@ -1,5 +1,4 @@
 const path = require('path');
-const OfflinePlugin = require('offline-plugin');
 
 module.exports = {
   entry: {
@@ -19,11 +18,5 @@ module.exports = {
   },
   resolve: {
     extensions: ['', '.js', '.json', '.scss', '.css']
-  },
-  plugins: [
-    new OfflinePlugin({
-      caches: 'all',
-      publicPath: 'jeepney_jump' 
-    })
-  ]
+  }
 };
