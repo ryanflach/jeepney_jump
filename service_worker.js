@@ -4,6 +4,7 @@ this.addEventListener('install', function(event) {
       return cache.addAll([
         '/jeepney_jump/',
         '/jeepney_jump/index.html',
+        '/jeepney_jump/favicon.ico',
         '/jeepney_jump/assets/style.css',
         '/jeepney_jump/lib/index.js',
         '/jeepney_jump/lib/asset_manager.js',
