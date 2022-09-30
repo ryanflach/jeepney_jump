@@ -1,6 +1,6 @@
 # Jeepney Jump
 
-**Play the game [here](https://ryanflach.github.com/jeepney_jump).**
+**Play the game [here](https://ryanflach.github.io/jeepney_jump).**
 
 Jeepney Jump is an offline-enabled Filipino-themed 2D endless obstacle game. Built in JavaScript, it is a single-page, client-side web application that utilizes [Webpack](https://github.com/webpack/webpack). Touch events are enabled to also be enjoyed on mobile devices.
 
